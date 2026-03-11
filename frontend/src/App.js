@@ -18,7 +18,10 @@ import {
     Zap,
     Globe,
     Menu,
-    X
+    X,
+    Twitter,
+    Instagram,
+    Facebook
 } from "lucide-react";
 import {
     AreaChart,
@@ -79,7 +82,7 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <a href="#home" className="flex items-center" data-testid="logo-link">
-                        <img src={LOGO_URL} alt="Data Farm" className="h-14 w-auto" />
+                        <img src={LOGO_URL} alt="Data Farm" className="h-16 w-auto" />
                     </a>
 
                     {/* Desktop Navigation */}
@@ -625,9 +628,9 @@ const ContactSection = () => {
 // Footer Component
 const Footer = () => {
     const socialLinks = [
-        { name: 'Twitter', href: 'https://twitter.com/Datafarm_tz', icon: 'X' },
-        { name: 'Instagram', href: 'https://www.instagram.com/datafarm_tz/', icon: 'IG' },
-        { name: 'Facebook', href: 'https://facebook.com/datafarmtz', icon: 'FB' }
+        { name: 'Twitter', href: 'https://twitter.com/Datafarm_tz', icon: <Twitter size={18} /> },
+        { name: 'Instagram', href: 'https://www.instagram.com/datafarm_tz/', icon: <Instagram size={18} /> },
+        { name: 'Facebook', href: 'https://facebook.com/datafarmtz', icon: <Facebook size={18} /> }
     ];
 
     return (
@@ -636,7 +639,7 @@ const Footer = () => {
                 <div className="grid md:grid-cols-4 gap-10 mb-10">
                     {/* Logo & Description */}
                     <div className="md:col-span-2">
-                        <img src={LOGO_URL} alt="Data Farm" className="h-14 w-auto mb-4" />
+                        <img src={LOGO_URL} alt="Data Farm" className="h-16 w-auto mb-4" />
                         <p className="text-slate-600 text-sm leading-relaxed max-w-md">
                             Empowering organizations with data, research, and expertise. Your partner for smarter, data-driven decisions in emerging markets.
                         </p>
@@ -678,7 +681,7 @@ const Footer = () => {
                                 className="social-icon-light transition-all duration-200"
                                 data-testid={`social-${social.name.toLowerCase()}`}
                             >
-                                <span className="text-xs font-bold">{social.icon}</span>
+                                {social.icon}
                             </a>
                         ))}
                     </div>
