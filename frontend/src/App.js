@@ -844,16 +844,42 @@ const StatsSection = () => {
     );
 };
 
+// Country codes data
+const countryCodes = [
+    { code: '+255', country: 'Tanzania', flag: '🇹🇿' },
+    { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+    { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+    { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+    { code: '+257', country: 'Burundi', flag: '🇧🇮' },
+    { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+    { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+    { code: '+233', country: 'Ghana', flag: '🇬🇭' },
+    { code: '+1', country: 'USA', flag: '🇺🇸' },
+    { code: '+44', country: 'UK', flag: '🇬🇧' },
+    { code: '+91', country: 'India', flag: '🇮🇳' },
+    { code: '+86', country: 'China', flag: '🇨🇳' },
+    { code: '+971', country: 'UAE', flag: '🇦🇪' },
+];
+
 // Contact Form Modal
 const ContactFormModal = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        countryCode: '+255',
+        phone: '',
         subject: '',
         message: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+    const [countrySearch, setCountrySearch] = useState('');
+
+    const filteredCountries = countryCodes.filter(c => 
+        c.country.toLowerCase().includes(countrySearch.toLowerCase()) ||
+        c.code.includes(countrySearch)
+    );
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -868,7 +894,7 @@ const ContactFormModal = ({ isOpen, onClose }) => {
         // Reset after showing success
         setTimeout(() => {
             setSubmitted(false);
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', countryCode: '+255', phone: '', subject: '', message: '' });
             onClose();
         }, 2000);
     };
@@ -879,6 +905,14 @@ const ContactFormModal = ({ isOpen, onClose }) => {
             [e.target.name]: e.target.value
         }));
     };
+
+    const selectCountry = (country) => {
+        setFormData(prev => ({ ...prev, countryCode: country.code }));
+        setShowCountryDropdown(false);
+        setCountrySearch('');
+    };
+
+    const selectedCountry = countryCodes.find(c => c.code === formData.countryCode);
 
     if (!isOpen) return null;
 
@@ -902,7 +936,7 @@ const ContactFormModal = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-[#0a1628] border border-[#8ee4af]/20 rounded-2xl p-8 w-full max-w-lg shadow-2xl"
+                    className="relative bg-[#0a1628] border border-[#8ee4af]/20 rounded-2xl p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto"
                 >
                     {/* Close Button */}
                     <button
@@ -942,7 +976,7 @@ const ContactFormModal = ({ isOpen, onClose }) => {
                                             onChange={handleChange}
                                             required
                                             className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
-                                            placeholder="John Doe"
+                                            placeholder="Starla Matiku"
                                             data-testid="input-name"
                                         />
                                     </div>
@@ -959,9 +993,77 @@ const ContactFormModal = ({ isOpen, onClose }) => {
                                             onChange={handleChange}
                                             required
                                             className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
-                                            placeholder="john@example.com"
+                                            placeholder="starlamatiku@gmail.com"
                                             data-testid="input-email"
                                         />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm text-slate-400 mb-2">Phone Number</label>
+                                    <div className="flex gap-2">
+                                        {/* Country Code Selector */}
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                                                className="flex items-center gap-2 bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 px-3 text-white hover:border-[#8ee4af]/50 transition-colors min-w-[100px]"
+                                                data-testid="country-selector"
+                                            >
+                                                <span>{selectedCountry?.flag}</span>
+                                                <span className="text-sm">{formData.countryCode}</span>
+                                                <ChevronRight size={14} className={`transition-transform ${showCountryDropdown ? 'rotate-90' : ''}`} />
+                                            </button>
+                                            
+                                            {/* Dropdown */}
+                                            {showCountryDropdown && (
+                                                <div className="absolute top-full left-0 mt-1 w-64 bg-[#0a1628] border border-[#8ee4af]/20 rounded-lg shadow-xl z-10 overflow-hidden">
+                                                    {/* Search */}
+                                                    <div className="p-2 border-b border-[#8ee4af]/10">
+                                                        <input
+                                                            type="text"
+                                                            value={countrySearch}
+                                                            onChange={(e) => setCountrySearch(e.target.value)}
+                                                            placeholder="Search country..."
+                                                            className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-md py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50"
+                                                            data-testid="country-search"
+                                                        />
+                                                    </div>
+                                                    {/* Country List */}
+                                                    <div className="max-h-48 overflow-y-auto">
+                                                        {filteredCountries.map((country) => (
+                                                            <button
+                                                                key={country.code}
+                                                                type="button"
+                                                                onClick={() => selectCountry(country)}
+                                                                className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-[#1a2b5f]/50 transition-colors ${
+                                                                    formData.countryCode === country.code ? 'bg-[#1a2b5f]/30' : ''
+                                                                }`}
+                                                            >
+                                                                <span>{country.flag}</span>
+                                                                <span className="text-white text-sm">{country.country}</span>
+                                                                <span className="text-slate-500 text-sm ml-auto">{country.code}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Phone Input */}
+                                        <div className="relative flex-1">
+                                            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                required
+                                                className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
+                                                placeholder="754510366"
+                                                data-testid="input-phone"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -988,7 +1090,7 @@ const ContactFormModal = ({ isOpen, onClose }) => {
                                             value={formData.message}
                                             onChange={handleChange}
                                             required
-                                            rows={4}
+                                            rows={3}
                                             className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors resize-none"
                                             placeholder="Tell us about your project..."
                                             data-testid="input-message"
