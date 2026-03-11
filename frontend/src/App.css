@@ -354,3 +354,8 @@
     justify-content: center;
     color: #8ee4af;
 }
+
+/* Hide Emergent badge */
+#emergent-badge {
+    display: none !important;
+}
