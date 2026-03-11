@@ -36,7 +36,11 @@ import {
     BarChart,
     Bar,
     Cell,
-    Tooltip
+    Tooltip,
+    PieChart as RechartsPie,
+    Pie,
+    RadialBarChart,
+    RadialBar
 } from "recharts";
 import InsightsPage from "./pages/InsightsPage";
 
@@ -61,7 +65,295 @@ const barChartData = [
     { name: 'Q4', value: 90 },
 ];
 
-// Navbar Component
+// Pie chart data
+const pieChartData = [
+    { name: 'Research', value: 35, fill: '#8ee4af' },
+    { name: 'Analysis', value: 30, fill: '#1a2b5f' },
+    { name: 'Consulting', value: 20, fill: '#3d5a9f' },
+    { name: 'Other', value: 15, fill: '#5a7dbf' },
+];
+
+// Donut chart data
+const donutChartData = [
+    { name: 'Completed', value: 78, fill: '#8ee4af' },
+    { name: 'In Progress', value: 22, fill: '#1a2b5f' },
+];
+
+// Radial data
+const radialData = [
+    { name: 'Progress', value: 75, fill: '#8ee4af' },
+];
+
+// Map locations data
+const mapLocations = [
+    { id: 1, name: 'Dar es Salaam', x: 75, y: 55, size: 'large' },
+    { id: 2, name: 'Arusha', x: 65, y: 25, size: 'medium' },
+    { id: 3, name: 'Mwanza', x: 35, y: 30, size: 'medium' },
+    { id: 4, name: 'Dodoma', x: 55, y: 45, size: 'small' },
+    { id: 5, name: 'Zanzibar', x: 82, y: 50, size: 'small' },
+    { id: 6, name: 'Mbeya', x: 30, y: 60, size: 'small' },
+];
+
+// Rotating Data Visualization Component
+const RotatingVisualization = () => {
+    const [activeViz, setActiveViz] = useState(0);
+    const [counterValues, setCounterValues] = useState({
+        dataPoints: 2847593,
+        reports: 15847,
+        accuracy: 99.2
+    });
+
+    const visualizations = [
+        { type: 'area', title: 'Data Growth Analytics', icon: <TrendingUp size={20} /> },
+        { type: 'counter', title: 'Real-Time Statistics', icon: <Database size={20} /> },
+        { type: 'donut', title: 'Project Completion', icon: <PieChart size={20} /> },
+        { type: 'pie', title: 'Service Distribution', icon: <BarChart3 size={20} /> },
+        { type: 'map', title: 'Data Coverage Map', icon: <Globe size={20} /> },
+    ];
+
+    // Auto-rotate visualizations
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveViz((prev) => (prev + 1) % visualizations.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [visualizations.length]);
+
+    // Update counter values periodically
+    useEffect(() => {
+        const counterInterval = setInterval(() => {
+            setCounterValues(prev => ({
+                dataPoints: prev.dataPoints + Math.floor(Math.random() * 50),
+                reports: prev.reports + Math.floor(Math.random() * 3),
+                accuracy: 99.2 + (Math.random() * 0.5 - 0.25)
+            }));
+        }, 2000);
+        return () => clearInterval(counterInterval);
+    }, []);
+
+    const renderVisualization = () => {
+        switch (visualizations[activeViz].type) {
+            case 'area':
+                return (
+                    <ResponsiveContainer width="100%" height={220}>
+                        <AreaChart data={areaChartData}>
+                            <defs>
+                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#8ee4af" stopOpacity={0.4}/>
+                                    <stop offset="95%" stopColor="#8ee4af" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <XAxis dataKey="name" stroke="#475569" fontSize={12} />
+                            <YAxis stroke="#475569" fontSize={12} />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    background: '#1a2b5f', 
+                                    border: '1px solid rgba(142, 228, 175, 0.2)',
+                                    borderRadius: '8px'
+                                }}
+                            />
+                            <Area 
+                                type="monotone" 
+                                dataKey="value" 
+                                stroke="#8ee4af" 
+                                strokeWidth={2}
+                                fillOpacity={1} 
+                                fill="url(#colorValue)" 
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                );
+
+            case 'counter':
+                return (
+                    <div className="grid grid-cols-1 gap-4 py-4">
+                        <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-sm">Data Points Processed</span>
+                                <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
+                            </div>
+                            <div className="text-3xl font-bold text-[#8ee4af] mt-2">
+                                {counterValues.dataPoints.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-sm">Reports Generated</span>
+                                <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
+                            </div>
+                            <div className="text-3xl font-bold text-white mt-2">
+                                {counterValues.reports.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-sm">Data Accuracy</span>
+                                <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
+                            </div>
+                            <div className="text-3xl font-bold text-white mt-2">
+                                {counterValues.accuracy.toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'donut':
+                return (
+                    <div className="flex flex-col items-center">
+                        <ResponsiveContainer width="100%" height={180}>
+                            <RechartsPie>
+                                <Pie
+                                    data={donutChartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={70}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {donutChartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        background: '#1a2b5f', 
+                                        border: '1px solid rgba(142, 228, 175, 0.2)',
+                                        borderRadius: '8px'
+                                    }}
+                                />
+                            </RechartsPie>
+                        </ResponsiveContainer>
+                        <div className="flex gap-6 mt-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-[#8ee4af]"></div>
+                                <span className="text-sm text-slate-400">Completed (78%)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-[#1a2b5f]"></div>
+                                <span className="text-sm text-slate-400">In Progress</span>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'pie':
+                return (
+                    <div className="flex flex-col items-center">
+                        <ResponsiveContainer width="100%" height={180}>
+                            <RechartsPie>
+                                <Pie
+                                    data={pieChartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={70}
+                                    dataKey="value"
+                                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                                    labelLine={false}
+                                >
+                                    {pieChartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        background: '#1a2b5f', 
+                                        border: '1px solid rgba(142, 228, 175, 0.2)',
+                                        borderRadius: '8px'
+                                    }}
+                                />
+                            </RechartsPie>
+                        </ResponsiveContainer>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                            {pieChartData.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full" style={{ background: item.fill }}></div>
+                                    <span className="text-xs text-slate-400">{item.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+
+            case 'map':
+                return (
+                    <div className="relative w-full h-[220px] bg-[#1a2b5f]/20 rounded-lg overflow-hidden border border-[#8ee4af]/10">
+                        {/* Tanzania outline (simplified) */}
+                        <svg viewBox="0 0 100 100" className="w-full h-full opacity-30">
+                            <path 
+                                d="M30 20 L70 15 L85 30 L90 60 L75 80 L50 85 L25 75 L20 50 L25 30 Z" 
+                                fill="none" 
+                                stroke="#8ee4af" 
+                                strokeWidth="0.5"
+                            />
+                        </svg>
+                        {/* Map markers */}
+                        {mapLocations.map((loc) => (
+                            <div
+                                key={loc.id}
+                                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                                style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+                            >
+                                <div className={`relative ${loc.size === 'large' ? 'w-4 h-4' : loc.size === 'medium' ? 'w-3 h-3' : 'w-2 h-2'}`}>
+                                    <div className={`absolute inset-0 rounded-full bg-[#8ee4af] animate-ping opacity-75`} 
+                                         style={{ animationDuration: `${1.5 + Math.random()}s` }}></div>
+                                    <div className={`relative rounded-full bg-[#8ee4af] w-full h-full`}></div>
+                                </div>
+                                {loc.size === 'large' && (
+                                    <span className="absolute top-5 left-1/2 -translate-x-1/2 text-xs text-[#8ee4af] whitespace-nowrap">
+                                        {loc.name}
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                        {/* Connection lines */}
+                        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                            <line x1="75%" y1="55%" x2="65%" y2="25%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="75%" y1="55%" x2="35%" y2="30%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="75%" y1="55%" x2="55%" y2="45%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                        </svg>
+                    </div>
+                );
+
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="chart-container glow-mint">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <span className="text-[#8ee4af]">{visualizations[activeViz].icon}</span>
+                    <span className="text-sm text-slate-400">{visualizations[activeViz].title}</span>
+                </div>
+                {/* Indicator dots */}
+                <div className="flex gap-1.5">
+                    {visualizations.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setActiveViz(idx)}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                idx === activeViz ? 'bg-[#8ee4af] w-4' : 'bg-slate-600 hover:bg-slate-500'
+                            }`}
+                        />
+                    ))}
+                </div>
+            </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeViz}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {renderVisualization()}
+                </motion.div>
+            </AnimatePresence>
+        </div>
+    );
+};
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -233,46 +525,14 @@ const HeroSection = () => {
                         </div>
                     </motion.div>
 
-                    {/* Right Content - Decorative Chart */}
+                    {/* Right Content - Rotating Visualizations */}
                     <motion.div
                         initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="hidden lg:block"
                     >
-                        <div className="chart-container glow-mint animate-float">
-                            <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp size={20} className="text-[#8ee4af]" />
-                                <span className="text-sm text-slate-400">Data Growth Analytics</span>
-                            </div>
-                            <ResponsiveContainer width="100%" height={250}>
-                                <AreaChart data={areaChartData}>
-                                    <defs>
-                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8ee4af" stopOpacity={0.4}/>
-                                            <stop offset="95%" stopColor="#8ee4af" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" stroke="#475569" fontSize={12} />
-                                    <YAxis stroke="#475569" fontSize={12} />
-                                    <Tooltip 
-                                        contentStyle={{ 
-                                            background: '#1a2b5f', 
-                                            border: '1px solid rgba(142, 228, 175, 0.2)',
-                                            borderRadius: '8px'
-                                        }}
-                                    />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="value" 
-                                        stroke="#8ee4af" 
-                                        strokeWidth={2}
-                                        fillOpacity={1} 
-                                        fill="url(#colorValue)" 
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <RotatingVisualization />
                     </motion.div>
                 </div>
             </div>
