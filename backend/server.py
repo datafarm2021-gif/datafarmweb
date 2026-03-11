@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
@@ -12,6 +13,7 @@ from datetime import datetime, timezone
 import aiosmtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import resend
 
 
 ROOT_DIR = Path(__file__).parent
@@ -24,10 +26,16 @@ db = client[os.environ['DB_NAME']]
 
 # Email configuration
 SMTP_SERVER = os.environ.get('SMTP_SERVER', 'mail.datafarm.co.tz')
-SMTP_PORT = int(os.environ.get('SMTP_PORT', 465))
+SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
 SMTP_EMAIL = os.environ.get('SMTP_EMAIL', '')
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
 RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL', 'harvest@datafarm.co.tz')
+USE_RESEND = os.environ.get('USE_RESEND', 'false').lower() == 'true'
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+
+# Initialize Resend if API key is available
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -143,84 +151,102 @@ async def send_contact_form(request: ContactFormRequest):
     </html>
     """
     
-    # Create plain text version
-    text_content = f"""
-    New Contact Form Submission
+    email_sent = False
+    send_method = None
+    error_msg = None
     
-    Name: {request.name}
-    Email: {request.email}
-    Phone: {request.country_code} {request.phone}
-    Subject: {request.subject}
+    # Try Resend first if configured
+    if USE_RESEND and RESEND_API_KEY:
+        try:
+            params = {
+                "from": "Data Farm <onboarding@resend.dev>",
+                "to": [RECIPIENT_EMAIL],
+                "subject": f"Contact Form: {request.subject}",
+                "html": html_content,
+                "reply_to": request.email
+            }
+            
+            email_response = await asyncio.to_thread(resend.Emails.send, params)
+            logger.info(f"Contact form email sent via Resend: {email_response}")
+            email_sent = True
+            send_method = "resend"
+            
+        except Exception as e:
+            logger.warning(f"Resend failed, will try SMTP: {str(e)}")
+            error_msg = str(e)
     
-    Message:
-    {request.message}
+    # Try SMTP if Resend not configured or failed
+    if not email_sent and SMTP_EMAIL and SMTP_PASSWORD:
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = f"Contact Form: {request.subject}"
+            msg["From"] = SMTP_EMAIL
+            msg["To"] = RECIPIENT_EMAIL
+            msg["Reply-To"] = request.email
+            
+            text_content = f"""
+New Contact Form Submission
+
+Name: {request.name}
+Email: {request.email}
+Phone: {request.country_code} {request.phone}
+Subject: {request.subject}
+
+Message:
+{request.message}
+
+---
+This email was sent from the Data Farm website contact form.
+            """
+            
+            msg.attach(MIMEText(text_content, "plain"))
+            msg.attach(MIMEText(html_content, "html"))
+            
+            # Try STARTTLS (port 587)
+            await aiosmtplib.send(
+                msg,
+                hostname=SMTP_SERVER,
+                port=SMTP_PORT,
+                username=SMTP_EMAIL,
+                password=SMTP_PASSWORD,
+                start_tls=True,
+                timeout=30
+            )
+            
+            logger.info(f"Contact form email sent via SMTP from {request.email}")
+            email_sent = True
+            send_method = "smtp"
+            
+        except Exception as e:
+            logger.error(f"SMTP failed: {str(e)}")
+            error_msg = str(e)
     
-    ---
-    This email was sent from the Data Farm website contact form.
-    """
+    # Save to database regardless of email status
+    contact_doc = {
+        "id": str(uuid.uuid4()),
+        "name": request.name,
+        "email": request.email,
+        "phone": f"{request.country_code} {request.phone}",
+        "subject": request.subject,
+        "message": request.message,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "email_sent": email_sent,
+        "send_method": send_method,
+        "error": error_msg if not email_sent else None
+    }
+    await db.contact_submissions.insert_one(contact_doc)
     
-    # Create email message
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"Contact Form: {request.subject}"
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = RECIPIENT_EMAIL
-    msg["Reply-To"] = request.email
-    
-    # Attach both plain text and HTML versions
-    msg.attach(MIMEText(text_content, "plain"))
-    msg.attach(MIMEText(html_content, "html"))
-    
-    try:
-        # Send email using STARTTLS (port 587)
-        await aiosmtplib.send(
-            msg,
-            hostname=SMTP_SERVER,
-            port=SMTP_PORT,
-            username=SMTP_EMAIL,
-            password=SMTP_PASSWORD,
-            start_tls=True  # Use STARTTLS for port 587
-        )
-        
-        logger.info(f"Contact form email sent successfully from {request.email}")
-        
-        # Optionally save to database
-        contact_doc = {
-            "id": str(uuid.uuid4()),
-            "name": request.name,
-            "email": request.email,
-            "phone": f"{request.country_code} {request.phone}",
-            "subject": request.subject,
-            "message": request.message,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "email_sent": True
-        }
-        await db.contact_submissions.insert_one(contact_doc)
-        
+    if email_sent:
         return ContactFormResponse(
             status="success",
             message="Your message has been sent successfully. We'll get back to you within 24 hours."
         )
-        
-    except Exception as e:
-        logger.error(f"Failed to send contact form email: {str(e)}")
-        
-        # Still save to database even if email fails
-        contact_doc = {
-            "id": str(uuid.uuid4()),
-            "name": request.name,
-            "email": request.email,
-            "phone": f"{request.country_code} {request.phone}",
-            "subject": request.subject,
-            "message": request.message,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "email_sent": False,
-            "error": str(e)
-        }
-        await db.contact_submissions.insert_one(contact_doc)
-        
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to send email. Please try again or contact us directly at harvest@datafarm.co.tz"
+    else:
+        # Still return success but log the issue - message is saved in DB
+        logger.warning(f"Email not sent but saved to DB. Error: {error_msg}")
+        return ContactFormResponse(
+            status="success",
+            message="Your message has been received. We'll get back to you within 24 hours."
         )
 
 # Include the router in the main app
