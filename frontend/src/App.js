@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "@/App.css";
-import { motion } from "framer-motion";
+import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import CountUp from "react-countup";
 import { 
     BarChart3, 
@@ -19,9 +20,12 @@ import {
     Globe,
     Menu,
     X,
-    Twitter,
     Instagram,
-    Facebook
+    Facebook,
+    Send,
+    User,
+    MessageSquare,
+    ArrowRight
 } from "lucide-react";
 import {
     AreaChart,
@@ -34,6 +38,7 @@ import {
     Cell,
     Tooltip
 } from "recharts";
+import InsightsPage from "./pages/InsightsPage";
 
 // Logo URL
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_43ba9d9b-b9fd-49ce-9b96-7d5d269e20ba/artifacts/9eelofd6_HL%20Colored%20Logo.png";
@@ -70,16 +75,17 @@ const Navbar = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Home', href: '#home' },
-        { name: 'About', href: '#about' },
-        { name: 'Services', href: '#services' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'Home', href: '#home', isRoute: false },
+        { name: 'About', href: '#about', isRoute: false },
+        { name: 'Services', href: '#services', isRoute: false },
+        { name: 'Insights', href: '/insights', isRoute: true },
+        { name: 'Contact', href: '#contact', isRoute: false },
     ];
 
     return (
         <nav className={`navbar ${scrolled ? 'shadow-lg' : ''}`} data-testid="navbar">
             <div className="container mx-auto px-4 md:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex items-center justify-between h-20">
                     {/* Logo */}
                     <a href="#home" className="flex items-center" data-testid="logo-link">
                         <img src={LOGO_URL} alt="Data Farm" className="h-16 w-auto" />
@@ -88,14 +94,25 @@ const Navbar = () => {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-1">
                         {navLinks.map((link) => (
-                            <a 
-                                key={link.name}
-                                href={link.href}
-                                className="nav-link transition-colors duration-200"
-                                data-testid={`nav-${link.name.toLowerCase().replace(' ', '-')}`}
-                            >
-                                {link.name}
-                            </a>
+                            link.isRoute ? (
+                                <Link 
+                                    key={link.name}
+                                    to={link.href}
+                                    className="nav-link transition-colors duration-200"
+                                    data-testid={`nav-${link.name.toLowerCase().replace(' ', '-')}`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ) : (
+                                <a 
+                                    key={link.name}
+                                    href={link.href}
+                                    className="nav-link transition-colors duration-200"
+                                    data-testid={`nav-${link.name.toLowerCase().replace(' ', '-')}`}
+                                >
+                                    {link.name}
+                                </a>
+                            )
                         ))}
                     </div>
 
@@ -124,14 +141,25 @@ const Navbar = () => {
                         className="md:hidden py-4 border-t border-[#1a2b5f]/10"
                     >
                         {navLinks.map((link) => (
-                            <a 
-                                key={link.name}
-                                href={link.href}
-                                className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                {link.name}
-                            </a>
+                            link.isRoute ? (
+                                <Link 
+                                    key={link.name}
+                                    to={link.href}
+                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    {link.name}
+                                </Link>
+                            ) : (
+                                <a 
+                                    key={link.name}
+                                    href={link.href}
+                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    {link.name}
+                                </a>
+                            )
                         ))}
                         <a href="#contact" className="btn-primary mt-4 mx-4 text-center block" onClick={() => setMobileMenuOpen(false)}>
                             Get Started
@@ -199,7 +227,7 @@ const HeroSection = () => {
                                 <div className="text-sm text-slate-500">Clients</div>
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-[#8ee4af]">10+</div>
+                                <div className="text-2xl font-bold text-[#8ee4af]">5+</div>
                                 <div className="text-sm text-slate-500">Years</div>
                             </div>
                         </div>
@@ -399,6 +427,23 @@ const ServicesSection = () => {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Insights CTA */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-12 text-center"
+                >
+                    <Link 
+                        to="/insights" 
+                        className="inline-flex items-center gap-2 text-[#8ee4af] hover:text-white transition-colors font-medium"
+                        data-testid="services-insights-link"
+                    >
+                        Explore our Data Flashcards & Counters
+                        <ArrowRight size={18} />
+                    </Link>
+                </motion.div>
             </div>
         </section>
     );
@@ -477,7 +522,7 @@ const StatsSection = () => {
         { value: 500, suffix: '+', label: 'Projects Completed' },
         { value: 50, suffix: '+', label: 'Happy Clients' },
         { value: 1, suffix: 'M+', label: 'Data Points Processed' },
-        { value: 10, suffix: '+', label: 'Years Experience' }
+        { value: 5, suffix: '+', label: 'Years Experience' }
     ];
 
     const [inView, setInView] = useState(false);
@@ -513,8 +558,189 @@ const StatsSection = () => {
     );
 };
 
+// Contact Form Modal
+const ContactFormModal = ({ isOpen, onClose }) => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        
+        // Simulate form submission
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        setIsSubmitting(false);
+        setSubmitted(true);
+        
+        // Reset after showing success
+        setTimeout(() => {
+            setSubmitted(false);
+            setFormData({ name: '', email: '', subject: '', message: '' });
+            onClose();
+        }, 2000);
+    };
+
+    const handleChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                data-testid="contact-modal"
+            >
+                {/* Backdrop */}
+                <div 
+                    className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                    onClick={onClose}
+                />
+                
+                {/* Modal */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="relative bg-[#0a1628] border border-[#8ee4af]/20 rounded-2xl p-8 w-full max-w-lg shadow-2xl"
+                >
+                    {/* Close Button */}
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+                        data-testid="close-modal"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    {submitted ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-center py-8"
+                        >
+                            <div className="w-16 h-16 bg-[#8ee4af]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Send size={32} className="text-[#8ee4af]" />
+                            </div>
+                            <h3 className="text-2xl font-semibold text-white mb-2">Message Sent!</h3>
+                            <p className="text-slate-400">We'll get back to you within 24 hours.</p>
+                        </motion.div>
+                    ) : (
+                        <>
+                            <h3 className="text-2xl font-semibold text-white mb-2">Start a Conversation</h3>
+                            <p className="text-slate-400 mb-6">Fill out the form below and we'll respond promptly.</p>
+
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm text-slate-400 mb-2">Your Name</label>
+                                    <div className="relative">
+                                        <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
+                                            placeholder="John Doe"
+                                            data-testid="input-name"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm text-slate-400 mb-2">Email Address</label>
+                                    <div className="relative">
+                                        <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
+                                            placeholder="john@example.com"
+                                            data-testid="input-email"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm text-slate-400 mb-2">Subject</label>
+                                    <input
+                                        type="text"
+                                        name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors"
+                                        placeholder="How can we help?"
+                                        data-testid="input-subject"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm text-slate-400 mb-2">Message</label>
+                                    <div className="relative">
+                                        <MessageSquare size={18} className="absolute left-3 top-3 text-slate-500" />
+                                        <textarea
+                                            name="message"
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            required
+                                            rows={4}
+                                            className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50 transition-colors resize-none"
+                                            placeholder="Tell us about your project..."
+                                            data-testid="input-message"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="btn-primary w-full justify-center mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    data-testid="submit-form"
+                                >
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <div className="w-5 h-5 border-2 border-[#020817]/30 border-t-[#020817] rounded-full animate-spin" />
+                                            Sending...
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-2">
+                                            Send Message
+                                            <Send size={18} />
+                                        </span>
+                                    )}
+                                </button>
+                            </form>
+                        </>
+                    )}
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+    );
+};
+
 // Contact Section
 const ContactSection = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
     const contactInfo = [
         {
             icon: <Mail size={22} />,
@@ -525,8 +751,8 @@ const ContactSection = () => {
         {
             icon: <Phone size={22} />,
             title: 'Phone',
-            value: '+255 759 751 564',
-            link: 'tel:+255759751564'
+            value: '0754 510 366',
+            link: 'tel:+255754510366'
         },
         {
             icon: <MapPin size={22} />,
@@ -537,6 +763,8 @@ const ContactSection = () => {
     ];
 
     return (
+        <>
+        <ContactFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <section id="contact" className="section bg-[#020817] grid-pattern" data-testid="contact-section">
             <div className="container mx-auto px-4 md:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-12">
@@ -609,26 +837,31 @@ const ContactSection = () => {
                                     <span className="text-[#8ee4af]">Available</span>
                                 </div>
                             </div>
-                            <a 
-                                href="mailto:harvest@datafarm.co.tz"
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
                                 className="btn-primary w-full justify-center mt-6 transition-all duration-200"
                                 data-testid="contact-cta"
                             >
                                 Start a Conversation
                                 <ChevronRight size={18} />
-                            </a>
+                            </button>
                         </div>
                     </motion.div>
                 </div>
             </div>
         </section>
+        </>
     );
 };
 
 // Footer Component
 const Footer = () => {
     const socialLinks = [
-        { name: 'Twitter', href: 'https://twitter.com/Datafarm_tz', icon: <Twitter size={18} /> },
+        { name: 'Twitter', href: 'https://twitter.com/Datafarm_tz', icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+        )},
         { name: 'Instagram', href: 'https://www.instagram.com/datafarm_tz/', icon: <Instagram size={18} /> },
         { name: 'Facebook', href: 'https://facebook.com/datafarmtz', icon: <Facebook size={18} /> }
     ];
@@ -660,7 +893,7 @@ const Footer = () => {
                         <h4 className="text-[#1a2b5f] font-semibold mb-4">Contact</h4>
                         <ul className="space-y-2 text-sm text-slate-600">
                             <li>harvest@datafarm.co.tz</li>
-                            <li>+255 759 751 564</li>
+                            <li>0754 510 366</li>
                             <li>Dar es Salaam, Tanzania</li>
                         </ul>
                     </div>
@@ -691,10 +924,10 @@ const Footer = () => {
     );
 };
 
-// Main App Component
-function App() {
+// Home Page Component
+const HomePage = () => {
     return (
-        <div className="App bg-[#020817] min-h-screen">
+        <div className="bg-[#020817] min-h-screen">
             <Navbar />
             <HeroSection />
             <AboutSection />
@@ -704,6 +937,18 @@ function App() {
             <ContactSection />
             <Footer />
         </div>
+    );
+};
+
+// Main App Component with Routing
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/insights" element={<InsightsPage />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 
