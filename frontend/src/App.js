@@ -873,6 +873,7 @@ const ContactFormModal = ({ isOpen, onClose }) => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState('');
     const [showCountryDropdown, setShowCountryDropdown] = useState(false);
     const [countrySearch, setCountrySearch] = useState('');
 
@@ -884,19 +885,42 @@ const ContactFormModal = ({ isOpen, onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setError('');
         
-        // Simulate form submission
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        setIsSubmitting(false);
-        setSubmitted(true);
-        
-        // Reset after showing success
-        setTimeout(() => {
-            setSubmitted(false);
-            setFormData({ name: '', email: '', countryCode: '+255', phone: '', subject: '', message: '' });
-            onClose();
-        }, 2000);
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/contact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    country_code: formData.countryCode,
+                    phone: formData.phone,
+                    subject: formData.subject,
+                    message: formData.message
+                }),
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to send message');
+            }
+            
+            setSubmitted(true);
+            
+            // Reset after showing success
+            setTimeout(() => {
+                setSubmitted(false);
+                setFormData({ name: '', email: '', countryCode: '+255', phone: '', subject: '', message: '' });
+                onClose();
+            }, 2000);
+        } catch (err) {
+            setError(err.message || 'Failed to send message. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleChange = (e) => {
@@ -963,6 +987,12 @@ const ContactFormModal = ({ isOpen, onClose }) => {
                         <>
                             <h3 className="text-2xl font-semibold text-white mb-2">Start a Conversation</h3>
                             <p className="text-slate-400 mb-6">Fill out the form below and we'll respond promptly.</p>
+
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                                    {error}
+                                </div>
+                            )}
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
