@@ -109,7 +109,6 @@ const RotatingVisualization = () => {
         { type: 'counter', title: 'Live Economic Indicators', subtitle: 'Tanzania Real-Time', icon: <Database size={20} /> },
         { type: 'donut', title: 'Financial Inclusion', subtitle: 'Payment Methods Share', icon: <PieChart size={20} /> },
         { type: 'pie', title: 'National Budget 2024', subtitle: 'Sector Allocation', icon: <BarChart3 size={20} /> },
-        { type: 'map', title: 'Research Coverage', subtitle: 'East Africa Network', icon: <Globe size={20} /> },
     ];
 
     // Auto-rotate visualizations
