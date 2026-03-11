@@ -79,7 +79,7 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <a href="#home" className="flex items-center" data-testid="logo-link">
-                        <img src={LOGO_URL} alt="Data Farm" className="h-12 w-auto" />
+                        <img src={LOGO_URL} alt="Data Farm" className="h-14 w-auto" />
                     </a>
 
                     {/* Desktop Navigation */}
@@ -636,7 +636,7 @@ const Footer = () => {
                 <div className="grid md:grid-cols-4 gap-10 mb-10">
                     {/* Logo & Description */}
                     <div className="md:col-span-2">
-                        <img src={LOGO_URL} alt="Data Farm" className="h-12 w-auto mb-4" />
+                        <img src={LOGO_URL} alt="Data Farm" className="h-14 w-auto mb-4" />
                         <p className="text-slate-600 text-sm leading-relaxed max-w-md">
                             Empowering organizations with data, research, and expertise. Your partner for smarter, data-driven decisions in emerging markets.
                         </p>
