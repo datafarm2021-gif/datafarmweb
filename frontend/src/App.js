@@ -464,7 +464,7 @@ const Navbar = () => {
                                 <Link 
                                     key={link.name}
                                     to={link.href}
-                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
+                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#1a2b5f] hover:bg-[#1a2b5f]/10 transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {link.name}
@@ -473,7 +473,7 @@ const Navbar = () => {
                                 <a 
                                     key={link.name}
                                     href={link.href}
-                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
+                                    className="block py-3 px-4 text-[#1a2b5f] hover:text-[#1a2b5f] hover:bg-[#1a2b5f]/10 transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {link.name}
@@ -1169,9 +1169,9 @@ const Footer = () => {
                     <div>
                         <h4 className="text-[#1a2b5f] font-semibold mb-4">Services</h4>
                         <ul className="space-y-2">
-                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Data Analysis</a></li>
-                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Research</a></li>
-                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Consulting</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#1a2b5f] text-sm transition-colors">Data Analysis</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#1a2b5f] text-sm transition-colors">Research</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#1a2b5f] text-sm transition-colors">Consulting</a></li>
                         </ul>
                     </div>
 
