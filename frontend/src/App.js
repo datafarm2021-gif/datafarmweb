@@ -47,15 +47,15 @@ import InsightsPage from "./pages/InsightsPage";
 // Logo URL
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_43ba9d9b-b9fd-49ce-9b96-7d5d269e20ba/artifacts/9eelofd6_HL%20Colored%20Logo.png";
 
-// Sample chart data
+// Sample chart data - Economic Growth
 const areaChartData = [
-    { name: 'Jan', value: 400 },
-    { name: 'Feb', value: 600 },
-    { name: 'Mar', value: 500 },
-    { name: 'Apr', value: 800 },
-    { name: 'May', value: 700 },
-    { name: 'Jun', value: 900 },
-    { name: 'Jul', value: 850 },
+    { name: 'Jan', value: 4.2 },
+    { name: 'Feb', value: 4.5 },
+    { name: 'Mar', value: 4.1 },
+    { name: 'Apr', value: 4.8 },
+    { name: 'May', value: 5.2 },
+    { name: 'Jun', value: 5.6 },
+    { name: 'Jul', value: 5.4 },
 ];
 
 const barChartData = [
@@ -65,18 +65,18 @@ const barChartData = [
     { name: 'Q4', value: 90 },
 ];
 
-// Pie chart data
+// Pie chart data - Budget Allocation
 const pieChartData = [
-    { name: 'Research', value: 35, fill: '#8ee4af' },
-    { name: 'Analysis', value: 30, fill: '#1a2b5f' },
-    { name: 'Consulting', value: 20, fill: '#3d5a9f' },
-    { name: 'Other', value: 15, fill: '#5a7dbf' },
+    { name: 'Infrastructure', value: 32, fill: '#8ee4af' },
+    { name: 'Education', value: 24, fill: '#1a2b5f' },
+    { name: 'Healthcare', value: 22, fill: '#3d5a9f' },
+    { name: 'Agriculture', value: 22, fill: '#5a7dbf' },
 ];
 
-// Donut chart data
+// Donut chart data - Market Share
 const donutChartData = [
-    { name: 'Completed', value: 78, fill: '#8ee4af' },
-    { name: 'In Progress', value: 22, fill: '#1a2b5f' },
+    { name: 'Mobile Money', value: 62, fill: '#8ee4af' },
+    { name: 'Traditional Banking', value: 38, fill: '#1a2b5f' },
 ];
 
 // Radial data
@@ -84,31 +84,32 @@ const radialData = [
     { name: 'Progress', value: 75, fill: '#8ee4af' },
 ];
 
-// Map locations data
+// Map locations data - East Africa Research Coverage
 const mapLocations = [
     { id: 1, name: 'Dar es Salaam', x: 75, y: 55, size: 'large' },
-    { id: 2, name: 'Arusha', x: 65, y: 25, size: 'medium' },
-    { id: 3, name: 'Mwanza', x: 35, y: 30, size: 'medium' },
-    { id: 4, name: 'Dodoma', x: 55, y: 45, size: 'small' },
-    { id: 5, name: 'Zanzibar', x: 82, y: 50, size: 'small' },
-    { id: 6, name: 'Mbeya', x: 30, y: 60, size: 'small' },
+    { id: 2, name: 'Nairobi', x: 68, y: 22, size: 'large' },
+    { id: 3, name: 'Kampala', x: 45, y: 18, size: 'medium' },
+    { id: 4, name: 'Kigali', x: 48, y: 35, size: 'medium' },
+    { id: 5, name: 'Mombasa', x: 78, y: 32, size: 'small' },
+    { id: 6, name: 'Dodoma', x: 55, y: 48, size: 'small' },
+    { id: 7, name: 'Arusha', x: 62, y: 28, size: 'small' },
 ];
 
 // Rotating Data Visualization Component
 const RotatingVisualization = () => {
     const [activeViz, setActiveViz] = useState(0);
     const [counterValues, setCounterValues] = useState({
-        dataPoints: 2847593,
-        reports: 15847,
-        accuracy: 99.2
+        population: 65497231,
+        gdpGrowth: 5.2,
+        tradeVolume: 18.7
     });
 
     const visualizations = [
-        { type: 'area', title: 'Data Growth Analytics', icon: <TrendingUp size={20} /> },
-        { type: 'counter', title: 'Real-Time Statistics', icon: <Database size={20} /> },
-        { type: 'donut', title: 'Project Completion', icon: <PieChart size={20} /> },
-        { type: 'pie', title: 'Service Distribution', icon: <BarChart3 size={20} /> },
-        { type: 'map', title: 'Data Coverage Map', icon: <Globe size={20} /> },
+        { type: 'area', title: 'GDP Growth Rate (%)', subtitle: 'East Africa 2024', icon: <TrendingUp size={20} /> },
+        { type: 'counter', title: 'Live Economic Indicators', subtitle: 'Tanzania Real-Time', icon: <Database size={20} /> },
+        { type: 'donut', title: 'Financial Inclusion', subtitle: 'Payment Methods Share', icon: <PieChart size={20} /> },
+        { type: 'pie', title: 'National Budget 2024', subtitle: 'Sector Allocation', icon: <BarChart3 size={20} /> },
+        { type: 'map', title: 'Research Coverage', subtitle: 'East Africa Network', icon: <Globe size={20} /> },
     ];
 
     // Auto-rotate visualizations
@@ -123,9 +124,9 @@ const RotatingVisualization = () => {
     useEffect(() => {
         const counterInterval = setInterval(() => {
             setCounterValues(prev => ({
-                dataPoints: prev.dataPoints + Math.floor(Math.random() * 50),
-                reports: prev.reports + Math.floor(Math.random() * 3),
-                accuracy: 99.2 + (Math.random() * 0.5 - 0.25)
+                population: prev.population + Math.floor(Math.random() * 15),
+                gdpGrowth: 5.0 + (Math.random() * 0.8),
+                tradeVolume: 18.0 + (Math.random() * 2)
             }));
         }, 2000);
         return () => clearInterval(counterInterval);
@@ -135,64 +136,72 @@ const RotatingVisualization = () => {
         switch (visualizations[activeViz].type) {
             case 'area':
                 return (
-                    <ResponsiveContainer width="100%" height={220}>
-                        <AreaChart data={areaChartData}>
-                            <defs>
-                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8ee4af" stopOpacity={0.4}/>
-                                    <stop offset="95%" stopColor="#8ee4af" stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="name" stroke="#475569" fontSize={12} />
-                            <YAxis stroke="#475569" fontSize={12} />
-                            <Tooltip 
-                                contentStyle={{ 
-                                    background: '#1a2b5f', 
-                                    border: '1px solid rgba(142, 228, 175, 0.2)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Area 
-                                type="monotone" 
-                                dataKey="value" 
-                                stroke="#8ee4af" 
-                                strokeWidth={2}
-                                fillOpacity={1} 
-                                fill="url(#colorValue)" 
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    <div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <AreaChart data={areaChartData}>
+                                <defs>
+                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#8ee4af" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="#8ee4af" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="name" stroke="#475569" fontSize={11} tickLine={false} />
+                                <YAxis stroke="#475569" fontSize={11} tickLine={false} domain={[3, 6]} unit="%" />
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        background: '#1a2b5f', 
+                                        border: '1px solid rgba(142, 228, 175, 0.2)',
+                                        borderRadius: '8px',
+                                        fontSize: '12px'
+                                    }}
+                                    formatter={(value) => [`${value}%`, 'Growth']}
+                                />
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="value" 
+                                    stroke="#8ee4af" 
+                                    strokeWidth={2}
+                                    fillOpacity={1} 
+                                    fill="url(#colorValue)" 
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                        <p className="text-xs text-slate-500 text-center mt-2">Source: World Bank Economic Outlook</p>
+                    </div>
                 );
 
             case 'counter':
                 return (
-                    <div className="grid grid-cols-1 gap-4 py-4">
+                    <div className="grid grid-cols-1 gap-3 py-2">
                         <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
                             <div className="flex items-center justify-between">
-                                <span className="text-slate-400 text-sm">Data Points Processed</span>
+                                <span className="text-slate-400 text-sm">Population Estimate</span>
                                 <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
                             </div>
-                            <div className="text-3xl font-bold text-[#8ee4af] mt-2">
-                                {counterValues.dataPoints.toLocaleString()}
+                            <div className="text-2xl font-bold text-[#8ee4af] mt-1">
+                                {counterValues.population.toLocaleString()}
                             </div>
+                            <span className="text-xs text-slate-500">+2.9% annual growth</span>
                         </div>
                         <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
                             <div className="flex items-center justify-between">
-                                <span className="text-slate-400 text-sm">Reports Generated</span>
+                                <span className="text-slate-400 text-sm">GDP Growth Rate</span>
                                 <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
                             </div>
-                            <div className="text-3xl font-bold text-white mt-2">
-                                {counterValues.reports.toLocaleString()}
+                            <div className="text-2xl font-bold text-white mt-1">
+                                {counterValues.gdpGrowth.toFixed(1)}%
                             </div>
+                            <span className="text-xs text-slate-500">Year-over-year</span>
                         </div>
                         <div className="bg-[#1a2b5f]/30 rounded-lg p-4 border border-[#8ee4af]/20">
                             <div className="flex items-center justify-between">
-                                <span className="text-slate-400 text-sm">Data Accuracy</span>
+                                <span className="text-slate-400 text-sm">Trade Volume (USD Bn)</span>
                                 <div className="w-2 h-2 rounded-full bg-[#8ee4af] animate-pulse"></div>
                             </div>
-                            <div className="text-3xl font-bold text-white mt-2">
-                                {counterValues.accuracy.toFixed(1)}%
+                            <div className="text-2xl font-bold text-white mt-1">
+                                ${counterValues.tradeVolume.toFixed(1)}B
                             </div>
+                            <span className="text-xs text-slate-500">Exports + Imports</span>
                         </div>
                     </div>
                 );
@@ -200,14 +209,14 @@ const RotatingVisualization = () => {
             case 'donut':
                 return (
                     <div className="flex flex-col items-center">
-                        <ResponsiveContainer width="100%" height={180}>
+                        <ResponsiveContainer width="100%" height={165}>
                             <RechartsPie>
                                 <Pie
                                     data={donutChartData}
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={50}
-                                    outerRadius={70}
+                                    innerRadius={45}
+                                    outerRadius={65}
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
@@ -221,32 +230,34 @@ const RotatingVisualization = () => {
                                         border: '1px solid rgba(142, 228, 175, 0.2)',
                                         borderRadius: '8px'
                                     }}
+                                    formatter={(value) => [`${value}%`, 'Market Share']}
                                 />
                             </RechartsPie>
                         </ResponsiveContainer>
-                        <div className="flex gap-6 mt-2">
+                        <div className="flex gap-6 mt-1">
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-[#8ee4af]"></div>
-                                <span className="text-sm text-slate-400">Completed (78%)</span>
+                                <span className="text-xs text-slate-400">Mobile Money (62%)</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-[#1a2b5f]"></div>
-                                <span className="text-sm text-slate-400">In Progress</span>
+                                <span className="text-xs text-slate-400">Banks (38%)</span>
                             </div>
                         </div>
+                        <p className="text-xs text-slate-500 mt-2">Financial Services Adoption 2024</p>
                     </div>
                 );
 
             case 'pie':
                 return (
                     <div className="flex flex-col items-center">
-                        <ResponsiveContainer width="100%" height={180}>
+                        <ResponsiveContainer width="100%" height={165}>
                             <RechartsPie>
                                 <Pie
                                     data={pieChartData}
                                     cx="50%"
                                     cy="50%"
-                                    outerRadius={70}
+                                    outerRadius={65}
                                     dataKey="value"
                                     label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                                     labelLine={false}
@@ -261,10 +272,11 @@ const RotatingVisualization = () => {
                                         border: '1px solid rgba(142, 228, 175, 0.2)',
                                         borderRadius: '8px'
                                     }}
+                                    formatter={(value) => [`${value}%`, 'Allocation']}
                                 />
                             </RechartsPie>
                         </ResponsiveContainer>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
                             {pieChartData.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full" style={{ background: item.fill }}></div>
@@ -272,16 +284,17 @@ const RotatingVisualization = () => {
                                 </div>
                             ))}
                         </div>
+                        <p className="text-xs text-slate-500 mt-2">Government Expenditure Distribution</p>
                     </div>
                 );
 
             case 'map':
                 return (
-                    <div className="relative w-full h-[220px] bg-[#1a2b5f]/20 rounded-lg overflow-hidden border border-[#8ee4af]/10">
-                        {/* Tanzania outline (simplified) */}
-                        <svg viewBox="0 0 100 100" className="w-full h-full opacity-30">
+                    <div className="relative w-full h-[210px] bg-[#1a2b5f]/20 rounded-lg overflow-hidden border border-[#8ee4af]/10">
+                        {/* East Africa simplified outline */}
+                        <svg viewBox="0 0 100 100" className="w-full h-full opacity-20">
                             <path 
-                                d="M30 20 L70 15 L85 30 L90 60 L75 80 L50 85 L25 75 L20 50 L25 30 Z" 
+                                d="M35 10 L75 8 L85 25 L90 55 L80 75 L55 85 L30 78 L25 55 L28 30 Z" 
                                 fill="none" 
                                 stroke="#8ee4af" 
                                 strokeWidth="0.5"
@@ -300,7 +313,7 @@ const RotatingVisualization = () => {
                                     <div className={`relative rounded-full bg-[#8ee4af] w-full h-full`}></div>
                                 </div>
                                 {loc.size === 'large' && (
-                                    <span className="absolute top-5 left-1/2 -translate-x-1/2 text-xs text-[#8ee4af] whitespace-nowrap">
+                                    <span className="absolute top-5 left-1/2 -translate-x-1/2 text-[10px] text-[#8ee4af] whitespace-nowrap font-medium">
                                         {loc.name}
                                     </span>
                                 )}
@@ -308,10 +321,19 @@ const RotatingVisualization = () => {
                         ))}
                         {/* Connection lines */}
                         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                            <line x1="75%" y1="55%" x2="65%" y2="25%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
-                            <line x1="75%" y1="55%" x2="35%" y2="30%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
-                            <line x1="75%" y1="55%" x2="55%" y2="45%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="75%" y1="55%" x2="68%" y2="22%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="68%" y1="22%" x2="45%" y2="18%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="45%" y1="18%" x2="48%" y2="35%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="48%" y1="35%" x2="75%" y2="55%" stroke="#8ee4af" strokeWidth="0.5" opacity="0.3" />
                         </svg>
+                        {/* Legend */}
+                        <div className="absolute bottom-2 left-2 text-[10px] text-slate-400">
+                            <div className="flex items-center gap-1 mb-1">
+                                <div className="w-2 h-2 rounded-full bg-[#8ee4af]"></div>
+                                <span>7 Research Hubs</span>
+                            </div>
+                            <span className="text-slate-500">Active data collection points</span>
+                        </div>
                     </div>
                 );
 
@@ -322,10 +344,13 @@ const RotatingVisualization = () => {
 
     return (
         <div className="chart-container glow-mint">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <span className="text-[#8ee4af]">{visualizations[activeViz].icon}</span>
-                    <span className="text-sm text-slate-400">{visualizations[activeViz].title}</span>
+            <div className="flex items-center justify-between mb-3">
+                <div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[#8ee4af]">{visualizations[activeViz].icon}</span>
+                        <span className="text-sm font-medium text-white">{visualizations[activeViz].title}</span>
+                    </div>
+                    <span className="text-xs text-slate-500 ml-7">{visualizations[activeViz].subtitle}</span>
                 </div>
                 {/* Indicator dots */}
                 <div className="flex gap-1.5">
@@ -354,6 +379,8 @@ const RotatingVisualization = () => {
         </div>
     );
 };
+
+// Navbar Component
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
