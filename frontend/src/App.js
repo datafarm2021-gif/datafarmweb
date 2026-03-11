@@ -70,7 +70,6 @@ const Navbar = () => {
         { name: 'Home', href: '#home' },
         { name: 'About', href: '#about' },
         { name: 'Services', href: '#services' },
-        { name: 'Why Us', href: '#why-us' },
         { name: 'Contact', href: '#contact' },
     ];
 
@@ -106,7 +105,7 @@ const Navbar = () => {
 
                     {/* Mobile Menu Button */}
                     <button 
-                        className="md:hidden text-white p-2"
+                        className="md:hidden text-[#1a2b5f] p-2"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         data-testid="mobile-menu-btn"
                     >
@@ -119,13 +118,13 @@ const Navbar = () => {
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="md:hidden py-4 border-t border-white/10"
+                        className="md:hidden py-4 border-t border-[#1a2b5f]/10"
                     >
                         {navLinks.map((link) => (
                             <a 
                                 key={link.name}
                                 href={link.href}
-                                className="block py-3 px-4 text-slate-300 hover:text-[#8ee4af] transition-colors"
+                                className="block py-3 px-4 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 {link.name}
@@ -638,25 +637,25 @@ const Footer = () => {
                     {/* Logo & Description */}
                     <div className="md:col-span-2">
                         <img src={LOGO_URL} alt="Data Farm" className="h-10 w-auto mb-4" />
-                        <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+                        <p className="text-slate-600 text-sm leading-relaxed max-w-md">
                             Empowering organizations with data, research, and expertise. Your partner for smarter, data-driven decisions in emerging markets.
                         </p>
                     </div>
 
                     {/* Services Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Services</h4>
+                        <h4 className="text-[#1a2b5f] font-semibold mb-4">Services</h4>
                         <ul className="space-y-2">
-                            <li><a href="#services" className="text-slate-400 hover:text-[#8ee4af] text-sm transition-colors">Data Analysis</a></li>
-                            <li><a href="#services" className="text-slate-400 hover:text-[#8ee4af] text-sm transition-colors">Research</a></li>
-                            <li><a href="#services" className="text-slate-400 hover:text-[#8ee4af] text-sm transition-colors">Consulting</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Data Analysis</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Research</a></li>
+                            <li><a href="#services" className="text-slate-600 hover:text-[#8ee4af] text-sm transition-colors">Consulting</a></li>
                         </ul>
                     </div>
 
                     {/* Contact Info */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Contact</h4>
-                        <ul className="space-y-2 text-sm text-slate-400">
+                        <h4 className="text-[#1a2b5f] font-semibold mb-4">Contact</h4>
+                        <ul className="space-y-2 text-sm text-slate-600">
                             <li>harvest@datafarm.co.tz</li>
                             <li>+255 759 751 564</li>
                             <li>Dar es Salaam, Tanzania</li>
@@ -665,7 +664,7 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="border-t border-[#1a2b5f]/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-slate-500 text-sm">
                         © {new Date().getFullYear()} Data Farm. All rights reserved.
                     </p>
@@ -676,7 +675,7 @@ const Footer = () => {
                                 href={social.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="social-icon transition-all duration-200"
+                                className="social-icon-light transition-all duration-200"
                                 data-testid={`social-${social.name.toLowerCase()}`}
                             >
                                 <span className="text-xs font-bold">{social.icon}</span>
