@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import CountUp from "react-countup";
 import { 
     ArrowLeft,
@@ -13,69 +13,266 @@ import {
     Database,
     Zap,
     Calendar,
-    RefreshCw
+    RefreshCw,
+    Droplets,
+    Leaf,
+    MapPin,
+    ChevronDown,
+    Search
 } from "lucide-react";
 
 // Logo URL
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_43ba9d9b-b9fd-49ce-9b96-7d5d269e20ba/artifacts/9eelofd6_HL%20Colored%20Logo.png";
 
-// Sample flashcard data
-const flashcardsData = [
-    {
-        id: 1,
-        category: "Economy",
-        title: "Tanzania GDP Growth",
-        value: "5.2%",
-        description: "Annual GDP growth rate for 2024",
-        trend: "up",
-        icon: <TrendingUp size={24} />
-    },
-    {
-        id: 2,
-        category: "Population",
-        title: "Tanzania Population",
-        value: "65.5M",
-        description: "Estimated population in 2024",
-        trend: "up",
-        icon: <Users size={24} />
-    },
-    {
-        id: 3,
-        category: "Internet",
-        title: "Internet Penetration",
-        value: "32%",
-        description: "Percentage of population with internet access",
-        trend: "up",
-        icon: <Globe size={24} />
-    },
-    {
-        id: 4,
-        category: "Agriculture",
-        title: "Agricultural Output",
-        value: "28%",
-        description: "Agriculture contribution to GDP",
-        trend: "stable",
-        icon: <BarChart3 size={24} />
-    },
-    {
-        id: 5,
-        category: "Trade",
-        title: "Export Growth",
-        value: "12.4%",
-        description: "Year-over-year export increase",
-        trend: "up",
-        icon: <Activity size={24} />
-    },
-    {
-        id: 6,
-        category: "Energy",
-        title: "Electricity Access",
-        value: "42%",
-        description: "Population with electricity access",
-        trend: "up",
-        icon: <Zap size={24} />
-    }
+// Countries data
+const countries = [
+    { code: 'TZ', name: 'Tanzania', flag: '🇹🇿' },
 ];
+
+// Sectors data
+const sectors = [
+    { id: 'all', name: 'All Sectors', icon: <Globe size={16} /> },
+    { id: 'economy', name: 'Economy', icon: <TrendingUp size={16} /> },
+    { id: 'water', name: 'Water', icon: <Droplets size={16} /> },
+    { id: 'energy', name: 'Energy', icon: <Zap size={16} /> },
+    { id: 'agriculture', name: 'Agriculture', icon: <Leaf size={16} /> },
+    { id: 'tourism', name: 'Tourism', icon: <MapPin size={16} /> },
+    { id: 'population', name: 'Population', icon: <Users size={16} /> },
+];
+
+// Flashcard data organized by country and sector
+const flashcardsDatabase = {
+    TZ: {
+        economy: [
+            {
+                id: 'tz-eco-1',
+                category: 'Economy',
+                title: 'GDP Growth Rate',
+                value: '5.2%',
+                description: 'Annual GDP growth rate for 2024',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-eco-2',
+                category: 'Economy',
+                title: 'GDP Per Capita',
+                value: '$1,192',
+                description: 'GDP per capita in USD (2024)',
+                trend: 'up',
+                icon: <BarChart3 size={24} />
+            },
+            {
+                id: 'tz-eco-3',
+                category: 'Economy',
+                title: 'Inflation Rate',
+                value: '3.8%',
+                description: 'Annual inflation rate',
+                trend: 'stable',
+                icon: <Activity size={24} />
+            },
+            {
+                id: 'tz-eco-4',
+                category: 'Economy',
+                title: 'Export Growth',
+                value: '12.4%',
+                description: 'Year-over-year export increase',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+        ],
+        water: [
+            {
+                id: 'tz-wat-1',
+                category: 'Water',
+                title: 'Clean Water Access',
+                value: '61%',
+                description: 'Population with access to clean water',
+                trend: 'up',
+                icon: <Droplets size={24} />
+            },
+            {
+                id: 'tz-wat-2',
+                category: 'Water',
+                title: 'Rural Water Coverage',
+                value: '47%',
+                description: 'Rural areas with water infrastructure',
+                trend: 'up',
+                icon: <Droplets size={24} />
+            },
+            {
+                id: 'tz-wat-3',
+                category: 'Water',
+                title: 'Urban Water Supply',
+                value: '84%',
+                description: 'Urban population with piped water',
+                trend: 'stable',
+                icon: <Droplets size={24} />
+            },
+            {
+                id: 'tz-wat-4',
+                category: 'Water',
+                title: 'Water Projects',
+                value: '2,340',
+                description: 'Active water infrastructure projects',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+        ],
+        energy: [
+            {
+                id: 'tz-eng-1',
+                category: 'Energy',
+                title: 'Electricity Access',
+                value: '42%',
+                description: 'Population with electricity access',
+                trend: 'up',
+                icon: <Zap size={24} />
+            },
+            {
+                id: 'tz-eng-2',
+                category: 'Energy',
+                title: 'Renewable Energy',
+                value: '38%',
+                description: 'Share of renewable in energy mix',
+                trend: 'up',
+                icon: <Zap size={24} />
+            },
+            {
+                id: 'tz-eng-3',
+                category: 'Energy',
+                title: 'Power Generation',
+                value: '1,602 MW',
+                description: 'Total installed capacity',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+            {
+                id: 'tz-eng-4',
+                category: 'Energy',
+                title: 'Solar Projects',
+                value: '156',
+                description: 'Active solar energy projects',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+        ],
+        agriculture: [
+            {
+                id: 'tz-agr-1',
+                category: 'Agriculture',
+                title: 'GDP Contribution',
+                value: '28%',
+                description: 'Agriculture share of GDP',
+                trend: 'stable',
+                icon: <Leaf size={24} />
+            },
+            {
+                id: 'tz-agr-2',
+                category: 'Agriculture',
+                title: 'Employment Share',
+                value: '65%',
+                description: 'Workforce in agriculture',
+                trend: 'down',
+                icon: <Users size={24} />
+            },
+            {
+                id: 'tz-agr-3',
+                category: 'Agriculture',
+                title: 'Crop Production',
+                value: '+8.2%',
+                description: 'Year-over-year growth',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-agr-4',
+                category: 'Agriculture',
+                title: 'Export Crops Value',
+                value: '$1.8B',
+                description: 'Annual agricultural exports',
+                trend: 'up',
+                icon: <BarChart3 size={24} />
+            },
+        ],
+        tourism: [
+            {
+                id: 'tz-tour-1',
+                category: 'Tourism',
+                title: 'Tourist Arrivals',
+                value: '1.8M',
+                description: 'Annual international visitors',
+                trend: 'up',
+                icon: <MapPin size={24} />
+            },
+            {
+                id: 'tz-tour-2',
+                category: 'Tourism',
+                title: 'Tourism Revenue',
+                value: '$2.9B',
+                description: 'Annual tourism earnings',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-tour-3',
+                category: 'Tourism',
+                title: 'National Parks',
+                value: '22',
+                description: 'Protected national parks',
+                trend: 'stable',
+                icon: <Globe size={24} />
+            },
+            {
+                id: 'tz-tour-4',
+                category: 'Tourism',
+                title: 'Hotel Occupancy',
+                value: '68%',
+                description: 'Average hotel occupancy rate',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+        ],
+        population: [
+            {
+                id: 'tz-pop-1',
+                category: 'Population',
+                title: 'Total Population',
+                value: '65.5M',
+                description: 'Estimated population in 2024',
+                trend: 'up',
+                icon: <Users size={24} />
+            },
+            {
+                id: 'tz-pop-2',
+                category: 'Population',
+                title: 'Growth Rate',
+                value: '2.9%',
+                description: 'Annual population growth',
+                trend: 'stable',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-pop-3',
+                category: 'Population',
+                title: 'Urban Population',
+                value: '37%',
+                description: 'Population living in urban areas',
+                trend: 'up',
+                icon: <Globe size={24} />
+            },
+            {
+                id: 'tz-pop-4',
+                category: 'Population',
+                title: 'Median Age',
+                value: '17.7',
+                description: 'Median age in years',
+                trend: 'stable',
+                icon: <Users size={24} />
+            },
+        ],
+    }
+};
 
 // Live counter data
 const countersData = [
@@ -95,8 +292,10 @@ const FlashCard = ({ card }) => {
 
     return (
         <motion.div
+            layout
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             whileHover={{ y: -5, scale: 1.02 }}
             className="bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:border-[#8ee4af]/40 hover:shadow-lg hover:shadow-[#8ee4af]/10"
             data-testid={`flashcard-${card.id}`}
@@ -159,9 +358,93 @@ const LiveCounter = ({ counter }) => {
     );
 };
 
+// Country Selector Component
+const CountrySelector = ({ selectedCountry, onSelect }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+
+    const filteredCountries = countries.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const selected = countries.find(c => c.code === selectedCountry);
+
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-3 bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-lg px-4 py-3 text-white hover:border-[#8ee4af]/40 transition-colors min-w-[200px]"
+                data-testid="country-selector"
+            >
+                <span className="text-xl">{selected?.flag}</span>
+                <span className="flex-1 text-left">{selected?.name}</span>
+                <ChevronDown size={18} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-[#0a1628] border border-[#8ee4af]/20 rounded-lg shadow-xl z-20 overflow-hidden"
+                >
+                    <div className="p-2 border-b border-[#8ee4af]/10">
+                        <div className="relative">
+                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search country..."
+                                className="w-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 rounded-md py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#8ee4af]/50"
+                            />
+                        </div>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                        {filteredCountries.map((country) => (
+                            <button
+                                key={country.code}
+                                onClick={() => {
+                                    onSelect(country.code);
+                                    setIsOpen(false);
+                                    setSearch('');
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#1a2b5f]/50 transition-colors ${
+                                    selectedCountry === country.code ? 'bg-[#1a2b5f]/30' : ''
+                                }`}
+                            >
+                                <span className="text-xl">{country.flag}</span>
+                                <span className="text-white">{country.name}</span>
+                            </button>
+                        ))}
+                        {filteredCountries.length === 0 && (
+                            <div className="px-4 py-3 text-slate-500 text-sm">No countries found</div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+        </div>
+    );
+};
+
 // Insights Page Component
 const InsightsPage = () => {
     const [activeTab, setActiveTab] = useState('flashcards');
+    const [selectedCountry, setSelectedCountry] = useState('TZ');
+    const [selectedSector, setSelectedSector] = useState('all');
+
+    // Get flashcards based on selected country and sector
+    const getFlashcards = () => {
+        const countryData = flashcardsDatabase[selectedCountry] || {};
+        
+        if (selectedSector === 'all') {
+            // Combine all sectors
+            return Object.values(countryData).flat();
+        }
+        
+        return countryData[selectedSector] || [];
+    };
+
+    const flashcards = getFlashcards();
 
     return (
         <div className="min-h-screen bg-[#020817]">
@@ -174,7 +457,7 @@ const InsightsPage = () => {
                         </Link>
                         <Link 
                             to="/" 
-                            className="flex items-center gap-2 text-[#1a2b5f] hover:text-[#8ee4af] transition-colors font-medium"
+                            className="flex items-center gap-2 text-[#1a2b5f] hover:text-[#1a2b5f]/70 transition-colors font-medium"
                             data-testid="back-to-home"
                         >
                             <ArrowLeft size={20} />
@@ -202,8 +485,8 @@ const InsightsPage = () => {
                         </p>
                     </motion.div>
 
-                    {/* Tabs */}
-                    <div className="flex justify-center gap-4 mb-12">
+                    {/* Main Tabs */}
+                    <div className="flex justify-center gap-4 mb-8">
                         <button
                             onClick={() => setActiveTab('flashcards')}
                             className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
@@ -241,18 +524,76 @@ const InsightsPage = () => {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-semibold text-white">Data of the Day</h2>
+                            {/* Filters Row */}
+                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    {/* Country Selector */}
+                                    <div>
+                                        <label className="block text-xs text-slate-500 mb-2 uppercase tracking-wider">Country</label>
+                                        <CountrySelector 
+                                            selectedCountry={selectedCountry}
+                                            onSelect={setSelectedCountry}
+                                        />
+                                    </div>
+                                </div>
                                 <div className="flex items-center gap-2 text-slate-400 text-sm">
                                     <Calendar size={16} />
                                     <span>Updated: {new Date().toLocaleDateString()}</span>
                                 </div>
                             </div>
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {flashcardsData.map((card) => (
-                                    <FlashCard key={card.id} card={card} />
-                                ))}
+
+                            {/* Sector Tabs */}
+                            <div className="mb-8">
+                                <label className="block text-xs text-slate-500 mb-3 uppercase tracking-wider">Select Sector</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {sectors.map((sector) => (
+                                        <button
+                                            key={sector.id}
+                                            onClick={() => setSelectedSector(sector.id)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                                selectedSector === sector.id
+                                                    ? 'bg-[#8ee4af] text-[#020817]'
+                                                    : 'bg-[#1a2b5f]/20 text-slate-300 hover:bg-[#1a2b5f]/40 border border-[#8ee4af]/10'
+                                            }`}
+                                            data-testid={`sector-${sector.id}`}
+                                        >
+                                            {sector.icon}
+                                            {sector.name}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
+
+                            {/* Flashcards Grid */}
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={`${selectedCountry}-${selectedSector}`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                                >
+                                    {flashcards.length > 0 ? (
+                                        flashcards.map((card) => (
+                                            <FlashCard key={card.id} card={card} />
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-12">
+                                            <Globe size={48} className="mx-auto text-slate-600 mb-4" />
+                                            <p className="text-slate-400">No data available for this selection</p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </AnimatePresence>
+
+                            {/* Stats Summary */}
+                            {flashcards.length > 0 && (
+                                <div className="mt-8 text-center text-sm text-slate-500">
+                                    Showing {flashcards.length} data points for {countries.find(c => c.code === selectedCountry)?.name}
+                                    {selectedSector !== 'all' && ` in ${sectors.find(s => s.id === selectedSector)?.name}`}
+                                </div>
+                            )}
                         </motion.div>
                     )}
 
