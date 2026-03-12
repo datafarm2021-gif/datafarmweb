@@ -740,22 +740,53 @@ const InsightsPage = () => {
                             {/* Sector Tabs */}
                             <div className="mb-8">
                                 <label className="block text-xs text-slate-500 mb-3 uppercase tracking-wider">Select Sector</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {sectors.map((sector) => (
-                                        <button
-                                            key={sector.id}
-                                            onClick={() => setSelectedSector(sector.id)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                                                selectedSector === sector.id
-                                                    ? 'bg-[#8ee4af] text-[#020817]'
-                                                    : 'bg-[#1a2b5f]/20 text-slate-300 hover:bg-[#1a2b5f]/40 border border-[#8ee4af]/10'
-                                            }`}
-                                            data-testid={`sector-${sector.id}`}
-                                        >
-                                            {sector.icon}
-                                            {sector.name}
-                                        </button>
-                                    ))}
+                                <div className="relative flex items-center gap-2">
+                                    {/* Left Arrow */}
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('sector-scroll');
+                                            container.scrollBy({ left: -200, behavior: 'smooth' });
+                                        }}
+                                        className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 flex items-center justify-center text-[#8ee4af] hover:bg-[#1a2b5f]/50 transition-colors"
+                                        data-testid="sector-scroll-left"
+                                    >
+                                        <ChevronDown size={20} className="rotate-90" />
+                                    </button>
+                                    
+                                    {/* Scrollable Sector Container */}
+                                    <div 
+                                        id="sector-scroll"
+                                        className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
+                                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                    >
+                                        {sectors.map((sector) => (
+                                            <button
+                                                key={sector.id}
+                                                onClick={() => setSelectedSector(sector.id)}
+                                                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                                                    selectedSector === sector.id
+                                                        ? 'bg-[#8ee4af] text-[#020817]'
+                                                        : 'bg-[#1a2b5f]/20 text-slate-300 hover:bg-[#1a2b5f]/40 border border-[#8ee4af]/10'
+                                                }`}
+                                                data-testid={`sector-${sector.id}`}
+                                            >
+                                                {sector.icon}
+                                                {sector.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* Right Arrow */}
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('sector-scroll');
+                                            container.scrollBy({ left: 200, behavior: 'smooth' });
+                                        }}
+                                        className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a2b5f]/30 border border-[#8ee4af]/20 flex items-center justify-center text-[#8ee4af] hover:bg-[#1a2b5f]/50 transition-colors"
+                                        data-testid="sector-scroll-right"
+                                    >
+                                        <ChevronDown size={20} className="-rotate-90" />
+                                    </button>
                                 </div>
                             </div>
 
