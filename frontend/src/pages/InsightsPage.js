@@ -37,7 +37,12 @@ const sectors = [
     { id: 'energy', name: 'Energy', icon: <Zap size={16} /> },
     { id: 'agriculture', name: 'Agriculture', icon: <Leaf size={16} /> },
     { id: 'tourism', name: 'Tourism', icon: <MapPin size={16} /> },
-    { id: 'population', name: 'Population', icon: <Users size={16} /> },
+    { id: 'demographics', name: 'Demographics', icon: <Users size={16} /> },
+    { id: 'health', name: 'Health', icon: <Activity size={16} /> },
+    { id: 'education', name: 'Education', icon: <BarChart3 size={16} /> },
+    { id: 'infrastructure', name: 'Infrastructure', icon: <Database size={16} /> },
+    { id: 'technology', name: 'Technology', icon: <Globe size={16} /> },
+    { id: 'trade', name: 'Trade', icon: <TrendingUp size={16} /> },
 ];
 
 // Flashcard data organized by country and sector
@@ -233,10 +238,10 @@ const flashcardsDatabase = {
                 icon: <Activity size={24} />
             },
         ],
-        population: [
+        demographics: [
             {
-                id: 'tz-pop-1',
-                category: 'Population',
+                id: 'tz-dem-1',
+                category: 'Demographics',
                 title: 'Total Population',
                 value: '65.5M',
                 description: 'Estimated population in 2024',
@@ -244,8 +249,8 @@ const flashcardsDatabase = {
                 icon: <Users size={24} />
             },
             {
-                id: 'tz-pop-2',
-                category: 'Population',
+                id: 'tz-dem-2',
+                category: 'Demographics',
                 title: 'Growth Rate',
                 value: '2.9%',
                 description: 'Annual population growth',
@@ -253,8 +258,8 @@ const flashcardsDatabase = {
                 icon: <TrendingUp size={24} />
             },
             {
-                id: 'tz-pop-3',
-                category: 'Population',
+                id: 'tz-dem-3',
+                category: 'Demographics',
                 title: 'Urban Population',
                 value: '37%',
                 description: 'Population living in urban areas',
@@ -262,13 +267,203 @@ const flashcardsDatabase = {
                 icon: <Globe size={24} />
             },
             {
-                id: 'tz-pop-4',
-                category: 'Population',
+                id: 'tz-dem-4',
+                category: 'Demographics',
                 title: 'Median Age',
                 value: '17.7',
                 description: 'Median age in years',
                 trend: 'stable',
                 icon: <Users size={24} />
+            },
+        ],
+        health: [
+            {
+                id: 'tz-hlt-1',
+                category: 'Health',
+                title: 'Life Expectancy',
+                value: '66.2',
+                description: 'Average life expectancy in years',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+            {
+                id: 'tz-hlt-2',
+                category: 'Health',
+                title: 'Health Expenditure',
+                value: '3.8%',
+                description: 'Health spending as % of GDP',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-hlt-3',
+                category: 'Health',
+                title: 'Hospital Beds',
+                value: '0.7',
+                description: 'Hospital beds per 1,000 people',
+                trend: 'stable',
+                icon: <Database size={24} />
+            },
+            {
+                id: 'tz-hlt-4',
+                category: 'Health',
+                title: 'Vaccination Rate',
+                value: '84%',
+                description: 'Child immunization coverage',
+                trend: 'up',
+                icon: <Users size={24} />
+            },
+        ],
+        education: [
+            {
+                id: 'tz-edu-1',
+                category: 'Education',
+                title: 'Literacy Rate',
+                value: '78%',
+                description: 'Adult literacy rate',
+                trend: 'up',
+                icon: <BarChart3 size={24} />
+            },
+            {
+                id: 'tz-edu-2',
+                category: 'Education',
+                title: 'Primary Enrollment',
+                value: '91%',
+                description: 'Primary school enrollment rate',
+                trend: 'up',
+                icon: <Users size={24} />
+            },
+            {
+                id: 'tz-edu-3',
+                category: 'Education',
+                title: 'Secondary Enrollment',
+                value: '32%',
+                description: 'Secondary school enrollment rate',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-edu-4',
+                category: 'Education',
+                title: 'Education Budget',
+                value: '22%',
+                description: 'Government spending on education',
+                trend: 'stable',
+                icon: <BarChart3 size={24} />
+            },
+        ],
+        infrastructure: [
+            {
+                id: 'tz-inf-1',
+                category: 'Infrastructure',
+                title: 'Paved Roads',
+                value: '12,786 km',
+                description: 'Total paved road network',
+                trend: 'up',
+                icon: <Database size={24} />
+            },
+            {
+                id: 'tz-inf-2',
+                category: 'Infrastructure',
+                title: 'Rail Network',
+                value: '3,689 km',
+                description: 'Total railway length',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+            {
+                id: 'tz-inf-3',
+                category: 'Infrastructure',
+                title: 'Port Capacity',
+                value: '18.2M',
+                description: 'Annual port tonnage capacity',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-inf-4',
+                category: 'Infrastructure',
+                title: 'Airports',
+                value: '58',
+                description: 'Total number of airports',
+                trend: 'stable',
+                icon: <Globe size={24} />
+            },
+        ],
+        technology: [
+            {
+                id: 'tz-tech-1',
+                category: 'Technology',
+                title: 'Internet Penetration',
+                value: '32%',
+                description: 'Population with internet access',
+                trend: 'up',
+                icon: <Globe size={24} />
+            },
+            {
+                id: 'tz-tech-2',
+                category: 'Technology',
+                title: 'Mobile Subscriptions',
+                value: '87%',
+                description: 'Mobile phone penetration rate',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-tech-3',
+                category: 'Technology',
+                title: 'Mobile Money Users',
+                value: '23M',
+                description: 'Active mobile money accounts',
+                trend: 'up',
+                icon: <Users size={24} />
+            },
+            {
+                id: 'tz-tech-4',
+                category: 'Technology',
+                title: 'Tech Startups',
+                value: '450+',
+                description: 'Registered tech companies',
+                trend: 'up',
+                icon: <Activity size={24} />
+            },
+        ],
+        trade: [
+            {
+                id: 'tz-trd-1',
+                category: 'Trade',
+                title: 'Total Exports',
+                value: '$7.8B',
+                description: 'Annual export value',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
+            },
+            {
+                id: 'tz-trd-2',
+                category: 'Trade',
+                title: 'Total Imports',
+                value: '$10.9B',
+                description: 'Annual import value',
+                trend: 'up',
+                icon: <BarChart3 size={24} />
+            },
+            {
+                id: 'tz-trd-3',
+                category: 'Trade',
+                title: 'Trade Balance',
+                value: '-$3.1B',
+                description: 'Trade deficit',
+                trend: 'stable',
+                icon: <Activity size={24} />
+            },
+            {
+                id: 'tz-trd-4',
+                category: 'Trade',
+                title: 'FDI Inflows',
+                value: '$1.1B',
+                description: 'Foreign direct investment',
+                trend: 'up',
+                icon: <TrendingUp size={24} />
             },
         ],
     }
