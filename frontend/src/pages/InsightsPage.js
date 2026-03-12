@@ -469,12 +469,12 @@ const flashcardsDatabase = {
     }
 };
 
-// Live counter data
-const countersData = [
-    { id: 1, label: "Data Points Collected", value: 2847593, suffix: "", rate: 12 },
-    { id: 2, label: "Reports Generated", value: 15847, suffix: "", rate: 2 },
-    { id: 3, label: "Active Research Projects", value: 47, suffix: "", rate: 0 },
-    { id: 4, label: "Surveys Completed", value: 3291, suffix: "", rate: 1 }
+// Live counter data - will be populated from APIs
+const initialCountersData = [
+    { id: 1, label: "World Population", value: 8100000000, suffix: "", rate: 3, icon: <Users size={28} />, source: "population.io" },
+    { id: 2, label: "Births Today", value: 0, suffix: "", rate: 4, icon: <Activity size={28} />, source: "Estimated" },
+    { id: 3, label: "Deaths Today", value: 0, suffix: "", rate: 2, icon: <Activity size={28} />, source: "Estimated" },
+    { id: 4, label: "CO2 Emissions (tons)", value: 0, suffix: "", rate: 1200, icon: <Globe size={28} />, source: "Estimated" },
 ];
 
 // Flashcard Component
@@ -510,30 +510,19 @@ const FlashCard = ({ card }) => {
     );
 };
 
-// Live Counter Component
-const LiveCounter = ({ counter }) => {
-    const [value, setValue] = useState(counter.value);
-
-    useEffect(() => {
-        if (counter.rate > 0) {
-            const interval = setInterval(() => {
-                setValue(prev => prev + counter.rate);
-            }, 3000);
-            return () => clearInterval(interval);
-        }
-    }, [counter.rate]);
-
+// Live Counter Component with API data
+const LiveCounter = ({ counter, value }) => {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-8 text-center"
+            className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-6 text-center"
             data-testid={`counter-${counter.id}`}
         >
-            <div className="flex items-center justify-center mb-4">
-                <Database size={28} className="text-[#8ee4af]" />
+            <div className="flex items-center justify-center mb-3">
+                <span className="text-[#8ee4af]">{counter.icon}</span>
             </div>
-            <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+            <div className="text-3xl md:text-4xl font-bold text-white mb-2">
                 <CountUp 
                     end={value} 
                     duration={1} 
@@ -542,14 +531,157 @@ const LiveCounter = ({ counter }) => {
                 />
                 {counter.suffix}
             </div>
-            <p className="text-slate-400">{counter.label}</p>
+            <p className="text-slate-400 text-sm">{counter.label}</p>
             {counter.rate > 0 && (
                 <div className="flex items-center justify-center gap-2 mt-3 text-xs text-[#8ee4af]">
                     <RefreshCw size={12} className="animate-spin" style={{ animationDuration: '3s' }} />
-                    <span>Live updating</span>
+                    <span>Live</span>
                 </div>
             )}
+            <div className="mt-2 text-xs text-slate-500">Source: {counter.source}</div>
         </motion.div>
+    );
+};
+
+// World Statistics Counter Component
+const WorldStatisticsCounters = () => {
+    const [counters, setCounters] = useState({
+        worldPopulation: 8117246913,
+        birthsToday: 0,
+        deathsToday: 0,
+        co2Today: 0,
+        internetUsers: 5350000000,
+        emailsSent: 0,
+        googleSearches: 0,
+        tweetsToday: 0,
+    });
+    const [loading, setLoading] = useState(true);
+    const [lastUpdate, setLastUpdate] = useState(new Date());
+
+    // Rates per second (approximate global averages)
+    const rates = {
+        births: 4.3,      // ~4.3 births per second globally
+        deaths: 1.8,      // ~1.8 deaths per second globally
+        co2: 1200,        // ~1200 tons CO2 per second
+        emails: 3500000,  // ~3.5M emails per second
+        searches: 99000,  // ~99K Google searches per second
+        tweets: 6000,     // ~6K tweets per second
+    };
+
+    // Fetch world population from REST Countries API
+    useEffect(() => {
+        const fetchWorldData = async () => {
+            try {
+                // Fetch from REST Countries to get all country populations
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=population');
+                if (response.ok) {
+                    const data = await response.json();
+                    const totalPopulation = data.reduce((sum, country) => sum + (country.population || 0), 0);
+                    setCounters(prev => ({
+                        ...prev,
+                        worldPopulation: totalPopulation
+                    }));
+                }
+            } catch (error) {
+                console.log('Using fallback population data');
+            }
+            setLoading(false);
+        };
+
+        fetchWorldData();
+    }, []);
+
+    // Calculate daily counters based on time of day
+    useEffect(() => {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const secondsSinceMidnight = (now - startOfDay) / 1000;
+
+        setCounters(prev => ({
+            ...prev,
+            birthsToday: Math.floor(secondsSinceMidnight * rates.births),
+            deathsToday: Math.floor(secondsSinceMidnight * rates.deaths),
+            co2Today: Math.floor(secondsSinceMidnight * rates.co2),
+            emailsSent: Math.floor(secondsSinceMidnight * rates.emails),
+            googleSearches: Math.floor(secondsSinceMidnight * rates.searches),
+            tweetsToday: Math.floor(secondsSinceMidnight * rates.tweets),
+        }));
+    }, []);
+
+    // Update counters in real-time
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCounters(prev => ({
+                ...prev,
+                worldPopulation: prev.worldPopulation + Math.round(rates.births - rates.deaths),
+                birthsToday: prev.birthsToday + Math.round(rates.births),
+                deathsToday: prev.deathsToday + Math.round(rates.deaths),
+                co2Today: prev.co2Today + rates.co2,
+                emailsSent: prev.emailsSent + rates.emails,
+                googleSearches: prev.googleSearches + rates.searches,
+                tweetsToday: prev.tweetsToday + rates.tweets,
+            }));
+            setLastUpdate(new Date());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const counterCards = [
+        { id: 1, label: "World Population", value: counters.worldPopulation, icon: <Users size={24} />, source: "REST Countries API", color: "text-[#8ee4af]" },
+        { id: 2, label: "Births Today", value: counters.birthsToday, icon: <TrendingUp size={24} />, source: "UN Estimates", color: "text-green-400" },
+        { id: 3, label: "Deaths Today", value: counters.deathsToday, icon: <Activity size={24} />, source: "UN Estimates", color: "text-red-400" },
+        { id: 4, label: "CO₂ Emissions Today (tons)", value: Math.round(counters.co2Today), icon: <Globe size={24} />, source: "Global Carbon Project", color: "text-orange-400" },
+        { id: 5, label: "Emails Sent Today", value: counters.emailsSent, icon: <Database size={24} />, source: "Radicati Group", color: "text-blue-400" },
+        { id: 6, label: "Google Searches Today", value: counters.googleSearches, icon: <Search size={24} />, source: "Internet Live Stats", color: "text-yellow-400" },
+    ];
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center py-12">
+                <RefreshCw size={32} className="animate-spin text-[#8ee4af]" />
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-white">World Statistics - Live</h2>
+                <div className="flex items-center gap-2 text-[#8ee4af] text-sm">
+                    <Activity size={16} className="animate-pulse" />
+                    <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
+                </div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {counterCards.map((counter) => (
+                    <motion.div
+                        key={counter.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-5 text-center"
+                    >
+                        <div className={`flex items-center justify-center mb-3 ${counter.color}`}>
+                            {counter.icon}
+                        </div>
+                        <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                            <CountUp 
+                                end={counter.value} 
+                                duration={0.5} 
+                                separator="," 
+                                preserveValue={true}
+                            />
+                        </div>
+                        <p className="text-slate-400 text-sm">{counter.label}</p>
+                        <div className="flex items-center justify-center gap-2 mt-2 text-xs text-[#8ee4af]">
+                            <RefreshCw size={10} className="animate-spin" style={{ animationDuration: '2s' }} />
+                            <span>Live</span>
+                        </div>
+                        <div className="mt-1 text-[10px] text-slate-600">Source: {counter.source}</div>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
     );
 };
 
@@ -847,18 +979,7 @@ const InsightsPage = () => {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-semibold text-white">Real-Time Statistics</h2>
-                                <div className="flex items-center gap-2 text-[#8ee4af] text-sm">
-                                    <Activity size={16} className="animate-pulse" />
-                                    <span>Live Data</span>
-                                </div>
-                            </div>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {countersData.map((counter) => (
-                                    <LiveCounter key={counter.id} counter={counter} />
-                                ))}
-                            </div>
+                            <WorldStatisticsCounters />
                         </motion.div>
                     )}
 
