@@ -546,40 +546,66 @@ const LiveCounter = ({ counter, value }) => {
 // World Statistics Counter Component
 const WorldStatisticsCounters = () => {
     const [counters, setCounters] = useState({
+        // World Stats
         worldPopulation: 8117246913,
-        birthsToday: 0,
-        deathsToday: 0,
-        co2Today: 0,
-        internetUsers: 5350000000,
-        emailsSent: 0,
-        googleSearches: 0,
-        tweetsToday: 0,
+        // Africa Stats
+        africaPopulation: 1460000000,
+        // East Africa Stats
+        tanzaniaPopulation: 65500000,
+        kenyaPopulation: 54000000,
+        ugandaPopulation: 47000000,
+        rwandaPopulation: 13500000,
+        ethiopiaPopulation: 126000000,
+        // Economic indicators
+        tanzaniaGDP: 75.71,
+        kenyaGDP: 113.42,
+        eacTradeVolume: 8.2,
     });
     const [loading, setLoading] = useState(true);
     const [lastUpdate, setLastUpdate] = useState(new Date());
 
-    // Rates per second (approximate global averages)
+    // Growth rates per second (approximate)
     const rates = {
-        births: 4.3,      // ~4.3 births per second globally
-        deaths: 1.8,      // ~1.8 deaths per second globally
-        co2: 1200,        // ~1200 tons CO2 per second
-        emails: 3500000,  // ~3.5M emails per second
-        searches: 99000,  // ~99K Google searches per second
-        tweets: 6000,     // ~6K tweets per second
+        world: 2.5,           // ~2.5 people per second globally
+        africa: 1.3,          // ~1.3 people per second in Africa
+        tanzania: 0.06,       // Tanzania growth
+        kenya: 0.04,          // Kenya growth
+        uganda: 0.05,         // Uganda growth
+        rwanda: 0.01,         // Rwanda growth
+        ethiopia: 0.08,       // Ethiopia growth
     };
 
-    // Fetch world population from REST Countries API
+    // Fetch population data from REST Countries API
     useEffect(() => {
-        const fetchWorldData = async () => {
+        const fetchRegionalData = async () => {
             try {
-                // Fetch from REST Countries to get all country populations
-                const response = await fetch('https://restcountries.com/v3.1/all?fields=population');
+                // Fetch East African countries
+                const eastAfricaCountries = ['tanzania', 'kenya', 'uganda', 'rwanda', 'ethiopia', 'burundi'];
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=name,population,region,subregion');
+                
                 if (response.ok) {
                     const data = await response.json();
-                    const totalPopulation = data.reduce((sum, country) => sum + (country.population || 0), 0);
+                    
+                    // Calculate totals
+                    const worldPop = data.reduce((sum, c) => sum + (c.population || 0), 0);
+                    const africaPop = data.filter(c => c.region === 'Africa').reduce((sum, c) => sum + (c.population || 0), 0);
+                    
+                    // Get specific countries
+                    const tanzania = data.find(c => c.name.common.toLowerCase() === 'tanzania');
+                    const kenya = data.find(c => c.name.common.toLowerCase() === 'kenya');
+                    const uganda = data.find(c => c.name.common.toLowerCase() === 'uganda');
+                    const rwanda = data.find(c => c.name.common.toLowerCase() === 'rwanda');
+                    const ethiopia = data.find(c => c.name.common.toLowerCase() === 'ethiopia');
+                    
                     setCounters(prev => ({
                         ...prev,
-                        worldPopulation: totalPopulation
+                        worldPopulation: worldPop,
+                        africaPopulation: africaPop,
+                        tanzaniaPopulation: tanzania?.population || prev.tanzaniaPopulation,
+                        kenyaPopulation: kenya?.population || prev.kenyaPopulation,
+                        ugandaPopulation: uganda?.population || prev.ugandaPopulation,
+                        rwandaPopulation: rwanda?.population || prev.rwandaPopulation,
+                        ethiopiaPopulation: ethiopia?.population || prev.ethiopiaPopulation,
                     }));
                 }
             } catch (error) {
@@ -588,24 +614,7 @@ const WorldStatisticsCounters = () => {
             setLoading(false);
         };
 
-        fetchWorldData();
-    }, []);
-
-    // Calculate daily counters based on time of day
-    useEffect(() => {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const secondsSinceMidnight = (now - startOfDay) / 1000;
-
-        setCounters(prev => ({
-            ...prev,
-            birthsToday: Math.floor(secondsSinceMidnight * rates.births),
-            deathsToday: Math.floor(secondsSinceMidnight * rates.deaths),
-            co2Today: Math.floor(secondsSinceMidnight * rates.co2),
-            emailsSent: Math.floor(secondsSinceMidnight * rates.emails),
-            googleSearches: Math.floor(secondsSinceMidnight * rates.searches),
-            tweetsToday: Math.floor(secondsSinceMidnight * rates.tweets),
-        }));
+        fetchRegionalData();
     }, []);
 
     // Update counters in real-time
@@ -613,28 +622,19 @@ const WorldStatisticsCounters = () => {
         const interval = setInterval(() => {
             setCounters(prev => ({
                 ...prev,
-                worldPopulation: prev.worldPopulation + Math.round(rates.births - rates.deaths),
-                birthsToday: prev.birthsToday + Math.round(rates.births),
-                deathsToday: prev.deathsToday + Math.round(rates.deaths),
-                co2Today: prev.co2Today + rates.co2,
-                emailsSent: prev.emailsSent + rates.emails,
-                googleSearches: prev.googleSearches + rates.searches,
-                tweetsToday: prev.tweetsToday + rates.tweets,
+                worldPopulation: prev.worldPopulation + Math.round(rates.world),
+                africaPopulation: prev.africaPopulation + Math.round(rates.africa),
+                tanzaniaPopulation: prev.tanzaniaPopulation + rates.tanzania,
+                kenyaPopulation: prev.kenyaPopulation + rates.kenya,
+                ugandaPopulation: prev.ugandaPopulation + rates.uganda,
+                rwandaPopulation: prev.rwandaPopulation + rates.rwanda,
+                ethiopiaPopulation: prev.ethiopiaPopulation + rates.ethiopia,
             }));
             setLastUpdate(new Date());
         }, 1000);
 
         return () => clearInterval(interval);
     }, []);
-
-    const counterCards = [
-        { id: 1, label: "World Population", value: counters.worldPopulation, icon: <Users size={24} />, source: "REST Countries API", color: "text-[#8ee4af]" },
-        { id: 2, label: "Births Today", value: counters.birthsToday, icon: <TrendingUp size={24} />, source: "UN Estimates", color: "text-green-400" },
-        { id: 3, label: "Deaths Today", value: counters.deathsToday, icon: <Activity size={24} />, source: "UN Estimates", color: "text-red-400" },
-        { id: 4, label: "CO₂ Emissions Today (tons)", value: Math.round(counters.co2Today), icon: <Globe size={24} />, source: "Global Carbon Project", color: "text-orange-400" },
-        { id: 5, label: "Emails Sent Today", value: counters.emailsSent, icon: <Database size={24} />, source: "Radicati Group", color: "text-blue-400" },
-        { id: 6, label: "Google Searches Today", value: counters.googleSearches, icon: <Search size={24} />, source: "Internet Live Stats", color: "text-yellow-400" },
-    ];
 
     if (loading) {
         return (
@@ -645,41 +645,150 @@ const WorldStatisticsCounters = () => {
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-white">World Statistics - Live</h2>
+        <div className="space-y-8">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-white">Live Population & Statistics</h2>
                 <div className="flex items-center gap-2 text-[#8ee4af] text-sm">
                     <Activity size={16} className="animate-pulse" />
                     <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
                 </div>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {counterCards.map((counter) => (
+
+            {/* Global Stats */}
+            <div>
+                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">Global Overview</h3>
+                <div className="grid md:grid-cols-2 gap-4">
                     <motion.div
-                        key={counter.id}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-5 text-center"
+                        className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-5"
                     >
-                        <div className={`flex items-center justify-center mb-3 ${counter.color}`}>
-                            {counter.icon}
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <Globe size={20} className="text-[#8ee4af]" />
+                                <span className="text-slate-400 text-sm">World Population</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-[#8ee4af]">
+                                <RefreshCw size={10} className="animate-spin" style={{ animationDuration: '2s' }} />
+                                <span>Live</span>
+                            </div>
                         </div>
-                        <div className="text-2xl md:text-3xl font-bold text-white mb-1">
-                            <CountUp 
-                                end={counter.value} 
-                                duration={0.5} 
-                                separator="," 
-                                preserveValue={true}
-                            />
+                        <div className="text-3xl font-bold text-white">
+                            <CountUp end={Math.round(counters.worldPopulation)} duration={0.5} separator="," preserveValue={true} />
                         </div>
-                        <p className="text-slate-400 text-sm">{counter.label}</p>
-                        <div className="flex items-center justify-center gap-2 mt-2 text-xs text-[#8ee4af]">
-                            <RefreshCw size={10} className="animate-spin" style={{ animationDuration: '2s' }} />
-                            <span>Live</span>
-                        </div>
-                        <div className="mt-1 text-[10px] text-slate-600">Source: {counter.source}</div>
+                        <div className="text-xs text-slate-500 mt-1">Source: REST Countries API</div>
                     </motion.div>
-                ))}
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gradient-to-br from-[#1a2b5f] to-[#0a1628] border border-[#8ee4af]/20 rounded-xl p-5"
+                    >
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <MapPin size={20} className="text-orange-400" />
+                                <span className="text-slate-400 text-sm">Africa Population</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-[#8ee4af]">
+                                <RefreshCw size={10} className="animate-spin" style={{ animationDuration: '2s' }} />
+                                <span>Live</span>
+                            </div>
+                        </div>
+                        <div className="text-3xl font-bold text-white">
+                            <CountUp end={Math.round(counters.africaPopulation)} duration={0.5} separator="," preserveValue={true} />
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">~18% of world population</div>
+                    </motion.div>
+                </div>
+            </div>
+
+            {/* East Africa Stats */}
+            <div>
+                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">East Africa - Live Population</h3>
+                <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {[
+                        { name: 'Tanzania', flag: '🇹🇿', population: counters.tanzaniaPopulation, color: 'text-[#8ee4af]' },
+                        { name: 'Kenya', flag: '🇰🇪', population: counters.kenyaPopulation, color: 'text-red-400' },
+                        { name: 'Uganda', flag: '🇺🇬', population: counters.ugandaPopulation, color: 'text-yellow-400' },
+                        { name: 'Ethiopia', flag: '🇪🇹', population: counters.ethiopiaPopulation, color: 'text-green-400' },
+                        { name: 'Rwanda', flag: '🇷🇼', population: counters.rwandaPopulation, color: 'text-blue-400' },
+                    ].map((country, idx) => (
+                        <motion.div
+                            key={country.name}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-[#1a2b5f]/30 border border-[#8ee4af]/10 rounded-xl p-4 text-center"
+                        >
+                            <div className="text-3xl mb-2">{country.flag}</div>
+                            <div className={`text-xl font-bold ${country.color}`}>
+                                <CountUp end={Math.round(country.population)} duration={0.5} separator="," preserveValue={true} />
+                            </div>
+                            <div className="text-slate-400 text-sm mt-1">{country.name}</div>
+                            <div className="flex items-center justify-center gap-1 mt-2 text-xs text-[#8ee4af]">
+                                <RefreshCw size={8} className="animate-spin" style={{ animationDuration: '2s' }} />
+                                <span>Live</span>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+
+            {/* East Africa Economic Indicators */}
+            <div>
+                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">East Africa - Key Economic Indicators</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                        { label: 'Tanzania GDP', value: '$75.7B', change: '+5.2%', trend: 'up' },
+                        { label: 'Kenya GDP', value: '$113.4B', change: '+5.0%', trend: 'up' },
+                        { label: 'EAC Trade Volume', value: '$8.2B', change: '+8.4%', trend: 'up' },
+                        { label: 'Regional FDI', value: '$4.8B', change: '+12%', trend: 'up' },
+                    ].map((item, idx) => (
+                        <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-[#1a2b5f]/20 border border-[#8ee4af]/10 rounded-xl p-4"
+                        >
+                            <div className="text-slate-400 text-sm mb-2">{item.label}</div>
+                            <div className="text-2xl font-bold text-white">{item.value}</div>
+                            <div className={`text-sm mt-1 ${item.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                                {item.trend === 'up' ? <TrendingUp size={14} className="inline mr-1" /> : null}
+                                {item.change} YoY
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+
+            {/* EAC Quick Facts */}
+            <div>
+                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">East African Community (EAC) Quick Facts</h3>
+                <div className="bg-[#1a2b5f]/20 border border-[#8ee4af]/10 rounded-xl p-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-[#8ee4af]">7</div>
+                            <div className="text-slate-400 text-sm mt-1">Member States</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">300M+</div>
+                            <div className="text-slate-400 text-sm mt-1">Combined Population</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">$305B</div>
+                            <div className="text-slate-400 text-sm mt-1">Combined GDP</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">4.7M km²</div>
+                            <div className="text-slate-400 text-sm mt-1">Total Area</div>
+                        </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-[#8ee4af]/10 text-center text-xs text-slate-500">
+                        Members: Burundi, DR Congo, Kenya, Rwanda, South Sudan, Tanzania, Uganda
+                    </div>
+                </div>
             </div>
         </div>
     );
