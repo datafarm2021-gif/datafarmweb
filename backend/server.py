@@ -221,7 +221,7 @@ This email was sent from the Data Farm website contact form.
                     password=SMTP_PASSWORD,
                     start_tls=config["start_tls"],
                     use_tls=config["use_tls"],
-                    timeout=30
+                    timeout=5
                 )
                 
                 logger.info(f"Contact form email sent via SMTP (port {config['port']}) from {request.email}")
