@@ -177,14 +177,13 @@ async def send_contact_form(request: ContactFormRequest):
     
     # Try SMTP if Resend not configured or failed
     if not email_sent and SMTP_EMAIL and SMTP_PASSWORD:
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"Contact Form: {request.subject}"
-            msg["From"] = SMTP_EMAIL
-            msg["To"] = RECIPIENT_EMAIL
-            msg["Reply-To"] = request.email
-            
-            text_content = f"""
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"Contact Form: {request.subject}"
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = RECIPIENT_EMAIL
+        msg["Reply-To"] = request.email
+        
+        text_content = f"""
 New Contact Form Submission
 
 Name: {request.name}
@@ -197,29 +196,43 @@ Message:
 
 ---
 This email was sent from the Data Farm website contact form.
-            """
-            
-            msg.attach(MIMEText(text_content, "plain"))
-            msg.attach(MIMEText(html_content, "html"))
-            
-            # Try STARTTLS (port 587)
-            await aiosmtplib.send(
-                msg,
-                hostname=SMTP_SERVER,
-                port=SMTP_PORT,
-                username=SMTP_EMAIL,
-                password=SMTP_PASSWORD,
-                start_tls=True,
-                timeout=30
-            )
-            
-            logger.info(f"Contact form email sent via SMTP from {request.email}")
-            email_sent = True
-            send_method = "smtp"
-            
-        except Exception as e:
-            logger.error(f"SMTP failed: {str(e)}")
-            error_msg = str(e)
+        """
+        
+        msg.attach(MIMEText(text_content, "plain"))
+        msg.attach(MIMEText(html_content, "html"))
+        
+        # Try multiple connection methods for cPanel compatibility
+        smtp_configs = [
+            # Method 1: STARTTLS on port 587
+            {"port": 587, "start_tls": True, "use_tls": False},
+            # Method 2: SSL on port 465
+            {"port": 465, "start_tls": False, "use_tls": True},
+            # Method 3: Plain on port 25 (fallback)
+            {"port": 25, "start_tls": False, "use_tls": False},
+        ]
+        
+        for config in smtp_configs:
+            try:
+                await aiosmtplib.send(
+                    msg,
+                    hostname=SMTP_SERVER,
+                    port=config["port"],
+                    username=SMTP_EMAIL,
+                    password=SMTP_PASSWORD,
+                    start_tls=config["start_tls"],
+                    use_tls=config["use_tls"],
+                    timeout=30
+                )
+                
+                logger.info(f"Contact form email sent via SMTP (port {config['port']}) from {request.email}")
+                email_sent = True
+                send_method = f"smtp_port_{config['port']}"
+                break
+                
+            except Exception as e:
+                logger.warning(f"SMTP port {config['port']} failed: {str(e)}")
+                error_msg = str(e)
+                continue
     
     # Save to database regardless of email status
     contact_doc = {
