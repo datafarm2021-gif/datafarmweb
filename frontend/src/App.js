@@ -45,7 +45,7 @@ import {
 import InsightsPage from "./pages/InsightsPage";
 
 // Logo URL
-const LOGO_URL = "https://customer-assets.emergentagent.com/job_43ba9d9b-b9fd-49ce-9b96-7d5d269e20ba/artifacts/9eelofd6_HL%20Colored%20Logo.png";
+const LOGO_URL = "/logo.png";
 
 // Sample chart data - Economic Growth
 const areaChartData = [
