@@ -1310,7 +1310,7 @@ const Footer = () => {
                     <div>
                         <h4 className="text-[#1a2b5f] font-semibold mb-4">Contact</h4>
                         <ul className="space-y-2 text-sm text-slate-600">
-                            <li>harvest@datafarm.co.tz</li>
+                            <li>info@datafarm.co.tz</li>
                             <li>+255 754 510 366</li>
                             <li>Dar es Salaam, Tanzania</li>
                         </ul>
