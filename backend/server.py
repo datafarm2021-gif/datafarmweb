@@ -29,7 +29,8 @@ SMTP_SERVER = os.environ.get('SMTP_SERVER', 'mail.datafarm.co.tz')
 SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
 SMTP_EMAIL = os.environ.get('SMTP_EMAIL', '')
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
-RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL', 'harvest@datafarm.co.tz')
+RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL', 'info@datafarm.co.tz')
+SENDER_NAME = os.environ.get('SENDER_NAME', 'Website- Datafarm')
 USE_RESEND = os.environ.get('USE_RESEND', 'false').lower() == 'true'
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 
@@ -98,7 +99,7 @@ async def get_status_checks():
 
 @api_router.post("/contact", response_model=ContactFormResponse)
 async def send_contact_form(request: ContactFormRequest):
-    """Send contact form email to harvest@datafarm.co.tz"""
+    """Send contact form email to info@datafarm.co.tz"""
     
     # Create email content
     html_content = f"""
@@ -179,7 +180,7 @@ async def send_contact_form(request: ContactFormRequest):
     if not email_sent and SMTP_EMAIL and SMTP_PASSWORD:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"Contact Form: {request.subject}"
-        msg["From"] = SMTP_EMAIL
+        msg["From"] = f"{SENDER_NAME} <{SMTP_EMAIL}>"
         msg["To"] = RECIPIENT_EMAIL
         msg["Reply-To"] = request.email
         
